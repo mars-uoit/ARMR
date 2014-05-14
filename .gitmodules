@@ -1,0 +1,6 @@
+[submodule "rosaria"]
+	path = rosaria
+	url = git@github.com:MrRamsoh/rosaria.git
+[submodule "p2os"]
+	path = p2os
+	url = git@github.com:allenh1/p2os.git
