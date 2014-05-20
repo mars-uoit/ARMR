@@ -1,0 +1,18 @@
+<package>
+  <name>radbotlive</name>
+  <version>1.0.0</version>
+  <description>Package to control radbot</description>
+  <!-- <maintainer>Edward</maintainer> -->
+
+  <license>BSD</license>
+
+  <url type="website">http://todo</url>
+  <!-- <url type="bugtracker"></url> -->
+
+  <maintainer email="michael.hosmar@uoit.ca">Michael Hosmar</maintainer>
+
+  <author email="michael.hosmar@uoit.ca">Michael Hosmar</author>
+
+  <buildtool_depend>catkin</buildtool_depend>
+  
+</package>
