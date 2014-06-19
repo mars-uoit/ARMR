@@ -1,3 +1,4 @@
 [submodule "p2os"]
 	path = p2os
 	url = git@github.com:allenh1/p2os.git
+	branch = indigo-stable
