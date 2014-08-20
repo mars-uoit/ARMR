@@ -1,5 +1,5 @@
 <launch>
-	<node pkg="gmapping" type="slam_gmapping" name="slam_gmapping" args="/scan">
+	<node machine = "Radbot" pkg="gmapping" type="slam_gmapping" name="slam_gmapping" args="/scan">
 		<param name="delta" type="double" value="0.05" />
 		<param name="temporalUpdate" type="double" value="2.5" />
 		<param name="xmin" type="double" value="-2" />

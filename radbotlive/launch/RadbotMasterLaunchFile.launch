@@ -1,0 +1,8 @@
+<launch>
+  <machine name="Radbot" address="Lemur3" env-loader="/opt/ros/indigo/env.sh" user="hosmar"/>
+
+  <include file="$(find radbotlive)/launch/pioneerMasterLaunchFile.launch"/>
+  <include file="$(find radbotlive)/launch/navigation-pioneer-3dx.launch"/>
+
+</launch>
+
