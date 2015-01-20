@@ -6,7 +6,7 @@ DWAPlannerROS:
   escape_vel: -0.2
 
   sim_time: 2.0
-  sim_granularity: 0.05
+  sim_granularity: 0.025
 
 
   path_distance_bias: 40.0
