@@ -15,4 +15,9 @@
 
   <buildtool_depend>catkin</buildtool_depend>
   
+
+  <run_depend>jackal_navigation</run_depend>
+  <run_depend>radbot_dashboard</run_depend>
+  <run_depend>rviz</run_depend>
+  
 </package>
