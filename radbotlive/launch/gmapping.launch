@@ -1,10 +1,9 @@
 <launch>
-	<node machine = "Radbot" pkg="gmapping" type="slam_gmapping" name="slam_gmapping" args="/scan">
-		<param name="delta" type="double" value="0.05" />
-		<param name="temporalUpdate" type="double" value="2.5" />
-		<param name="xmin" type="double" value="-2" />
-		<param name="xmax" type="double" value="2" />
-		<param name="ymin" type="double" value="-2" />
-		<param name="ymax" type="double" value="2" />
-	</node>
+
+  <!--- Run gmapping -->
+  <include file="$(find jackal_navigation)/launch/include/gmapping.launch" />
+
+  <!--- Run Move Base -->
+  <include file="$(find jackal_navigation)/launch/include/move_base.launch" />
+
 </launch>

@@ -1,0 +1,16 @@
+<?xml version="1.0"?>
+<package>
+  <name>radbot_viz</name>
+  <version>0.0.1</version>
+  <description>Visualization launchers and helpers for Radbot.</description>
+
+  <maintainer email="michael.hosmar@uoit.net">Michael Hosmar</maintainer>
+
+  <license>BSD</license>
+
+  <buildtool_depend>catkin</buildtool_depend>
+
+  <build_depend>roslaunch</build_depend>
+  <run_depend>rviz</run_depend>
+
+</package>
