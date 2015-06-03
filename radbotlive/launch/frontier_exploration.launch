@@ -1,11 +1,13 @@
 <launch>
 
+    <include file="$(find radbotlive)/launch/$(optenv ROBOT jackal).machine"/>
+
     <!-- Set to your sensor's range -->
     <arg name="sensor_range" default="1.5"/>
 
-    <node pkg="frontier_exploration" type="explore_client" name="explore_client" output="screen"/>
+    <node machine="c1" pkg="frontier_exploration" type="explore_client" name="explore_client" output="screen"/>
 
-    <node pkg="frontier_exploration" type="explore_server" name="explore_server" output="screen" >
+    <node machine="c1" pkg="frontier_exploration" type="explore_server" name="explore_server" output="screen" >
 
         <param name="frequency" type="double" value="2.0"/>
         <param name="goal_aliasing" type="double" value="$(arg sensor_range)"/>

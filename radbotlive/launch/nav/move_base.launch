@@ -1,6 +1,8 @@
 <launch>
+
+  <include file="$(find radbotlive)/launch/$(optenv ROBOT jackal).machine"/>
  
-  <node pkg="move_base" type="move_base" respawn="false" name="move_base" output="screen">
+  <node machine="c2" pkg="move_base" type="move_base" respawn="false" name="move_base" output="screen">
 
     <rosparam file="$(find radbotlive)/launch/nav/costmap_common_params.yaml" command="load" ns="global_costmap" />
     <rosparam file="$(find radbotlive)/launch/nav/costmap_common_params.yaml" command="load" ns="local_costmap" />

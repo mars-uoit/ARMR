@@ -2,7 +2,9 @@
 
   <arg name="scan_topic" default="scan" />
 
-  <node pkg="gmapping" type="slam_gmapping" name="slam_gmapping" output="screen">
+  <include file="$(find radbotlive)/launch/$(optenv ROBOT jackal).machine"/>
+
+  <node machine="c2" pkg="gmapping" type="slam_gmapping" name="slam_gmapping" output="screen">
 
     <param name="odom_frame" value="odom"/>
     <param name="base_frame" value="base_link"/>
@@ -14,7 +16,7 @@
     <param name="map_update_interval" value="5.0"/> <!-- default: 5.0 -->
 
     <!-- The maximum usable range of the laser. A beam is cropped to this value.  -->
-    <param name="maxUrange" value="5.0"/>
+    <param name="maxUrange" value="10.0"/> #default 5.0
 
     <!-- The maximum range of the sensor. If regions with no obstacles within the range of the sensor should appear as free space in the map, set maxUrange < maximum range of the real sensor <= maxRange -->
     <param name="maxRange" value="10.0"/>
