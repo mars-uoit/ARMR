@@ -1,5 +1,4 @@
 <launch>
   <machine name="c1" address="localhost" default="true"/>
   <machine name="c2" address="localhost"/>
-  <env name="SIM" value="true"/>
 </launch>

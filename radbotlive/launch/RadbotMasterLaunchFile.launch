@@ -1,8 +1,10 @@
 <launch>
-  <arg name="robot" default="jackal"/>
+  <arg name="sim" default="false"/>
+  <arg name="robot" value="jackal" unless="$(arg sim)"/>
+  <arg name="robot" value="sim" if="$(arg sim)"/>
   <env name="ROBOT" value="$(arg robot)"/>
   <include file="$(find radbotlive)/launch/$(arg robot).machine"/>
-  <include file="$(find jackal_gazebo)/launch/jackal_world.launch" if="$(env SIM)">
+  <include file="$(find jackal_gazebo)/launch/jackal_world.launch" if="$(arg sim)">
     <arg name="front_laser" value="true"/>
   </include>
   <include file="$(find radbot_viz)/launch/view_radbot.launch"/>
