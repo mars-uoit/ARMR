@@ -104,16 +104,16 @@ include_directories(
 # )
 
 ## Declare a cpp executable
-# add_executable(radbot_processor_node src/radbot_processor_node.cpp)
+add_executable(radbot_processor_node src/main.cc)
 
 ## Add cmake target dependencies of the executable/library
 ## as an example, message headers may need to be generated before nodes
 # add_dependencies(radbot_processor_node radbot_processor_generate_messages_cpp)
 
 ## Specify libraries to link a library or executable target against
-# target_link_libraries(radbot_processor_node
-#   ${catkin_LIBRARIES}
-# )
+target_link_libraries(radbot_processor_node
+  ${catkin_LIBRARIES}
+)
 
 #############
 ## Install ##
