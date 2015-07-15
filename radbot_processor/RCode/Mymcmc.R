@@ -1,4 +1,5 @@
 library(MCMCpack)
+library(mc2d)
 
 radbotlogpost <- function(predic, obs, ranges){
   
@@ -6,43 +7,45 @@ radbotlogpost <- function(predic, obs, ranges){
     intPos = rep(0, length(obs$obsX))
     radius <- matrix(NA, nrow = length(obs$obsX), ncol = ranges$numSrc)
     for (i in 1:length(obs$obsX))
-         {for (j in 1:ranges$numSrc){
-           radius[i,j] = ((obs$obsX[i]-predic[j,1])^2+(obs$obsY[i]-predic[j,2])^2)^(1/2)
-           intPos[i]=intPos[i] + predic[j,3]*(radius[i,j]^(-2))
-         }
+    {for (j in 1:ranges$numSrc){
+      radius[i,j] = ((obs$obsX[i]-predic[1,j])^2+(obs$obsY[i]-predic[2,j])^2)^(1/2)
+      intPos[i]=intPos[i] + predic[3,j]*(radius[i,j]^(-2))
+    }
     }
     return(intPos)
   }
   
-  radbotlogprior <-function(predic, ranges){
-    SrcXprior = dunif(predic[,1], min=ranges$minX, max=ranges$maxX, log = TRUE)
-    SrcYprior = dunif(predic[,2], min=ranges$minY, max=ranges$maxY, log = TRUE)
-    SrcIntprior = dunif(predic[,3], min=0, max=ranges$maxInt, log = TRUE)
-    tauprior = dunif(predic[1,4], min=0, max=ranges$maxTau, log = TRUE)
-    return(sum(SrcXprior)+sum(SrcYprior)+sum(SrcIntprior)+sum(tauprior))
+  radbotlogprior <-function(predic, tau, ranges){
+    SrcXprior = dunif(predic[1,], min=ranges$minX, max=ranges$maxX, log = TRUE)
+    SrcYprior = dunif(predic[2,], min=ranges$minY, max=ranges$maxY, log = TRUE)
+    SrcIntprior = dunif(predic[3,], min=0, max=ranges$maxInt, log = TRUE)
+    tauprior = dtriang(tau, min=0, mode=0, max=ranges$maxTau, log = TRUE)
+    return(sum(SrcXprior)+sum(SrcYprior)+sum(SrcIntprior)+tauprior)
   }
-  radbotloglike <-function(predic, obs, ranges){
+  
+  radbotloglike <-function(predic, tau, obs, ranges){
     val = 0
-    if(predic[1,4]>0){
     for (i in 1 : ranges$numSrc)
     {    
       preds = getpreds(predic, obs, ranges)
-      
       for (j in 1 : length(obs$obsX))
       {   
         if(!is.na(obs$obsInt[j])){
-          val = val + dnorm(obs$obsInt[j], mean=preds[j], sd=predic[1,4], log = TRUE)
+          val = val + dnorm(obs$obsInt[j], mean=preds[j], sd=tau, log = TRUE)
         }
       }
     }
     return(val)
-    }
-    else{return(-Inf)}
   }
-  log.like <-radbotloglike(t(predic), obs, ranges)
-  log.prior <-radbotlogprior(t(predic), ranges)
-  return(log.like+log.prior)
+  predictions <- matrix(predic[1:(length(predic)-1)], ncol = ranges$numSrc, nrow = 3)
+  tau = predic[length(predic)]
   
+  log.prior <-radbotlogprior(predictions, tau, ranges)
+  if(is.finite(log.prior)){
+    log.like <-radbotloglike(predictions, tau, obs, ranges)
+    return(log.like+log.prior)
+  }
+  else{return(-Inf)}
 }
 
 rep.col<-function(x,n){
@@ -51,7 +54,8 @@ rep.col<-function(x,n){
 
 #startMCMC
 OBS <- read.csv("Rdata2.csv")
-#Ranges <- as.data.frame(matrix(0.0, nrow = 1, ncol = 7))
+Ranges <- data.frame(maxX=0.0, maxY=0.0, minX=0.0, minY=0.0, spanX=0.0, spanY=0.0, maxInt=0.0, maxTau=0.0, numSrc=0)
+
 Ranges$maxX <- max(OBS$obsX)+abs(max(OBS$obsX)*.15)
 Ranges$maxY <- max(OBS$obsY)+abs(max(OBS$obsY)*.15)
 Ranges$minX <- min(OBS$obsX)-abs(min(OBS$obsX)*.15)
@@ -64,23 +68,48 @@ Ranges$maxInt = 1000000
 Ranges$maxTau = 50000
 Ranges$numSrc = 2
 
-init = c(Ranges$spanX/2+Ranges$minX, Ranges$spanY/2+Ranges$minY, Ranges$maxInt/2, 10000)
-tune = c(.5, .5, .5, 1)
+#initial values and tuning for X Y and Int.  These values repeat from multiple sources.  tau is appended to the end
+#init = c(Ranges$spanX/2+Ranges$minX, Ranges$spanY/2+Ranges$minY, Ranges$maxInt/2)
+init=NULL
+for (i in 1:Ranges$numSrc)
+{
+  SrcXinit = runif(1, min=Ranges$minX, max=Ranges$maxX)
+  SrcYinit = runif(1, min=Ranges$minY, max=Ranges$maxY)
+  SrcIntinit = runif(1, min=0, max=Ranges$maxInt)
+  init <- c(init, SrcXinit, SrcYinit, SrcIntinit)  
+}
+init <-c(init,rtriang(1, min=0, mode=0, max=Ranges$maxTau))
 
-post.radbot <- MCMCmetrop1R(radbotlogpost, theta.init=rep.col(init, Ranges$numSrc),
-                            thin=10, mcmc=100000, burnin=50000,
-                            tune=rep.col(tune, Ranges$numSrc),
-                            verbose=5000, logfun=TRUE, force.samp=TRUE, obs=OBS, ranges=Ranges)
+tune = c(.7, .7, .7)
+
+
+
+post.radbot <- MCMCmetrop1R(radbotlogpost, theta.init=init,
+                            thin=10, mcmc=30000, burnin=75000,
+                            tune=c(rep.col(tune, Ranges$numSrc), .5),
+                            verbose=1000, logfun=TRUE, force.samp=FALSE, obs=OBS, ranges=Ranges)
 
 print(summary(post.radbot))
 
-mean
+
+
+
+
 
 valDiffs <-function(vals){
-  SrcX = mean(post.radbot[,1])
-  SrcY = mean(post.radbot[,2])
-  SrcInt = mean(post.radbot[,3])
+  intensities <- rep(0.0, length(vals$valX))
+  for (i in 1:Ranges$numSrc)
+  {
+  SrcX = mean(post.radbot[,1+3*(i-1)])
+  SrcY = mean(post.radbot[,2+3*(i-1)])
+  SrcInt = mean(post.radbot[,3+3*(i-1)])
   radius <- ((SrcX-vals$valX)^2+(SrcY-vals$valY)^2)^.5
-  intensities <- SrcInt*(radius^-2)
+  intensities <- intensities + SrcInt*(radius^-2)
+  }
   return((intensities-vals$valInt)/vals$valInt)
+}
+
+plot.pos <- function(post, numSrc){
+  plot(OBS$obsX, OBS$obsY,asp=1)
+  points(c(mean(post.radbot[,1]), mean(post.radbot[,4])),y = c(mean(post.radbot[,2]),mean(post.radbot[,5])))
 }
