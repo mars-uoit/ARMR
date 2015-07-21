@@ -5,10 +5,7 @@ Panels:
     Property Tree Widget:
       Expanded:
         - /Global Options1
-        - /TF1/Tree1/odom1
-        - /TF1/Tree1/odom1/base_link1
         - /AerialMapDisplay1
-        - /AerialMapDisplay1/Status1
       Splitter Ratio: 0.5
     Tree Height: 817
   - Class: rviz/Selection
@@ -205,8 +202,8 @@ Visualization Manager:
     - Alpha: 1
       Autocompute Intensity Bounds: true
       Autocompute Value Bounds:
-        Max Value: 7.85511
-        Min Value: -0.923705
+        Max Value: 2.76212
+        Min Value: -11.0648
         Value: true
       Axis: Y
       Channel Name: intensity
@@ -378,7 +375,7 @@ Visualization Manager:
   Views:
     Current:
       Class: rviz/Orbit
-      Distance: 9372.42
+      Distance: 14.0306
       Enable Stereo Rendering:
         Stereo Eye Separation: 0.06
         Stereo Focal Distance: 1
