@@ -70,25 +70,31 @@ Ranges$numSrc = 2
 
 #initial values and tuning for X Y and Int.  These values repeat from multiple sources.  tau is appended to the end
 #init = c(Ranges$spanX/2+Ranges$minX, Ranges$spanY/2+Ranges$minY, Ranges$maxInt/2)
-init=NULL
-for (i in 1:Ranges$numSrc)
-{
-  SrcXinit = runif(1, min=Ranges$minX, max=Ranges$maxX)
-  SrcYinit = runif(1, min=Ranges$minY, max=Ranges$maxY)
-  SrcIntinit = runif(1, min=0, max=Ranges$maxInt)
-  init <- c(init, SrcXinit, SrcYinit, SrcIntinit)  
+
+attempts <- 0
+post.radbot <- NULL
+while ( is.null(post.radbot)  && attempts <= 100){
+  attempts <- attempts +1
+  init <-NULL
+  for (i in 1:Ranges$numSrc)
+  {
+    SrcXinit = runif(1, min=Ranges$minX, max=Ranges$maxX)
+    SrcYinit = runif(1, min=Ranges$minY, max=Ranges$maxY)
+    SrcIntinit = runif(1, min=0, max=Ranges$maxInt)
+    init <- c(init, SrcXinit, SrcYinit, SrcIntinit)  
+  }
+  init <-c(init,rtriang(1, min=0, mode=0, max=Ranges$maxTau))
+  
+  tune = c(.7, .7, .7)
+  
+  
+  try(
+    post.radbot <- MCMCmetrop1R(radbotlogpost, theta.init=init,
+                                thin=10, mcmc=3000, burnin=3000,
+                                tune=c(rep.col(tune, Ranges$numSrc), .5),
+                                verbose=1000, logfun=TRUE, force.samp=FALSE, obs=OBS, ranges=Ranges)
+  )
 }
-init <-c(init,rtriang(1, min=0, mode=0, max=Ranges$maxTau))
-
-tune = c(.7, .7, .7)
-
-
-
-post.radbot <- MCMCmetrop1R(radbotlogpost, theta.init=init,
-                            thin=10, mcmc=30000, burnin=75000,
-                            tune=c(rep.col(tune, Ranges$numSrc), .5),
-                            verbose=1000, logfun=TRUE, force.samp=FALSE, obs=OBS, ranges=Ranges)
-
 print(summary(post.radbot))
 
 
