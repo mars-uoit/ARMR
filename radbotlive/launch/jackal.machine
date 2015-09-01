@@ -1,4 +1,4 @@
 <launch>
   <machine name="c1" address="localhost" default="true"/>
-  <machine name="c2" address="192.168.5.111" user="administrator" env-loader="/opt/ros/indigo/myenv.sh"/>
+  <machine name="c2" address="192.168.5.201" user="administrator" env-loader="/opt/ros/indigo/myenv.sh"/>
 </launch>

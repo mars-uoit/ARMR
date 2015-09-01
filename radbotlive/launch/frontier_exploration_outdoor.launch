@@ -22,7 +22,7 @@
             publish_frequency: 4.0
 
             #must match incoming static map
-            global_frame: map
+            global_frame: gps
             robot_base_frame: base_link
             resolution: 0.05
 
@@ -30,24 +30,18 @@
             track_unknown_space: true
 
             plugins: 
-
-                - {name: static,           type: "costmap_2d::StaticLayer"}            
+      
                 - {name: explore_boundary, type: "frontier_exploration::BoundedExploreLayer"}
                 #Can disable sensor layer if gmapping is fast enough to update scans
                 - {name: sensor,           type: "costmap_2d::ObstacleLayer"}
                 - {name: inflation,        type: "costmap_2d::InflationLayer"}
 
-            static:
-                #Can pull data from gmapping, map_server or a non-rolling costmap            
-                map_topic: /map
-                # map_topic: move_base/global_costmap/costmap   
-                subscribe_to_updates: true
 
             explore_boundary:
-                resize_to_boundary: false
-                frontier_travel_point: middle
+                resize_to_boundary: true
+                frontier_travel_point: closest
                 #set to false for gmapping, true if re-exploring a known area
-                explore_clear_space: false
+                # explore_clear_space: false
 
             sensor:
                 observation_sources: laser

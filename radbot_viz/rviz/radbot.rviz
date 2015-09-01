@@ -5,8 +5,12 @@ Panels:
     Property Tree Widget:
       Expanded:
         - /Global Options1
+        - /TF1
+        - /TF1/Tree1
+        - /TF1/Tree1/gps1
+        - /TF1/Tree1/gps1/odom1
+        - /TF1/Tree1/gps1/odom1/base_link1
         - /AerialMapDisplay1
-        - /AerialMapDisplay1/Status1
       Splitter Ratio: 0.5
     Tree Height: 817
   - Class: rviz/Selection
@@ -154,6 +158,8 @@ Visualization Manager:
           Value: true
         front_right_wheel_link:
           Value: true
+        gps:
+          Value: true
         imu_link:
           Value: true
         map:
@@ -176,16 +182,40 @@ Visualization Manager:
       Show Axes: true
       Show Names: true
       Tree:
-        map:
+        gps:
           odom:
-            {}
+            base_link:
+              chassis_link:
+                fenders_link:
+                  {}
+                front_left_wheel_link:
+                  {}
+                front_right_wheel_link:
+                  {}
+                imu_link:
+                  {}
+                mid_mount:
+                  front_mount:
+                    front_laser_mount:
+                      front_laser:
+                        {}
+                  rear_mount:
+                    {}
+                navsat_link:
+                  {}
+                rear_left_wheel_link:
+                  {}
+                rear_right_wheel_link:
+                  {}
+        map:
+          {}
       Update Interval: 0
       Value: true
     - Alpha: 1
       Autocompute Intensity Bounds: true
       Autocompute Value Bounds:
-        Max Value: 1.17224
-        Min Value: -9.2079
+        Max Value: 5.06609
+        Min Value: -5.77081
         Value: true
       Axis: Y
       Channel Name: intensity
@@ -214,10 +244,10 @@ Visualization Manager:
       Class: rviz/Map
       Color Scheme: map
       Draw Behind: false
-      Enabled: false
+      Enabled: true
       Name: Map
       Topic: /map
-      Value: false
+      Value: true
     - Alpha: 1
       Axes Length: 1
       Axes Radius: 0.1
@@ -327,11 +357,11 @@ Visualization Manager:
       Blocks: 3
       Class: rviz_plugins/AerialMapDisplay
       Draw Behind: false
-      Enabled: true
+      Enabled: false
       Name: AerialMapDisplay
       Object URI: file:///home/hosmar/MapTiles/Durham/{z}/{x}/{y}.png
       Topic: /gps/filtered
-      Value: true
+      Value: false
       Zoom: 18
   Enabled: true
   Global Options:
@@ -356,23 +386,20 @@ Visualization Manager:
   Value: true
   Views:
     Current:
-      Class: rviz/Orbit
-      Distance: 12.149
+      Angle: 0
+      Class: rviz/TopDownOrtho
       Enable Stereo Rendering:
         Stereo Eye Separation: 0.06
         Stereo Focal Distance: 1
         Swap Stereo Eyes: false
         Value: false
-      Focal Point:
-        X: 0
-        Y: 0
-        Z: 0
       Name: Current View
       Near Clip Distance: 0.01
-      Pitch: 0.960398
+      Scale: 38.6036
       Target Frame: base_link
-      Value: Orbit (rviz)
-      Yaw: 1.0254
+      Value: TopDownOrtho (rviz)
+      X: 0
+      Y: 0
     Saved:
       - Angle: 4.71239
         Class: rviz/TopDownOrtho

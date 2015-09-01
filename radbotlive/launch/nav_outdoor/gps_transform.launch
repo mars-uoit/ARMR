@@ -2,26 +2,33 @@
 
     <include file="$(find radbotlive)/launch/$(optenv ROBOT jackal).machine"/>
 
-    <node machine="c1" pkg="robot_localization" type="navsat_transform_node" name="gps_transform" respawn="true" output="screen">
+    <!-- Used to transform IMU to ENU -->
+     <!--<node machine="c1" pkg="tf" type="static_transform_publisher" name="tf_imu_ned_enu"
+      args="0 0 0 -1.761037215 0 0 imu_link imu_link_enu 20" output="screen"/>
 
-      <param name="magnetic_declination_radians" value="-0.174532925"/>
-     <!-- <param name="roll_offset" value="0"/>
-      <param name="pitch_offset" value="0"/> -->
-      <param name="yaw_offset" value="0"/>
+    <node machine="c1" pkg="imu_transformer" type="imu_transformer_node" name="imu_data_transformer" output="screen">
+      <remap from="imu_in" to="imu"/>
+      <remap from="imu_out" to="imu_enu"/>
+      <param name="target_frame" value="imu_link_enu"/>
+    </node> -->
+
+    <node machine="c2" pkg="robot_localization" type="navsat_transform_node" name="gps_transform" respawn="true" output="screen">
+      <param name="frequency" value="30"/>
+      <param name="delay" value="3"/>
+      <param name="magnetic_declination_radians" value="0.190240888"/>
+      <param name="yaw_offset" value="1.57079633"/> 
       <param name="zero_altitude" value="true"/>
-     <!-- <param name="frame" value="map"/>-->
       <param name="publish_filtered_gps" value="true"/>
-      <param name="delay" value="1.0"/>
-
+      <param name="broadcast_utm_transform" value="true"/>
+      
       <!-- Placeholders for input remapping. Set your topic names as the "to" values.-->
-        <!-- <remap from="/imu/data" to="" /> -->
-        <!-- <remap from="/odometry/filtered" to="/odometry/ekf" /> -->
-        <remap from="/gps/fix" to="/navsat/fix" />      
+      <remap from="/imu/data" to="/imu/data" />
+      <remap from="/odometry/filtered" to="/odometry/filtered/global" /> 
+      <remap from="/gps/fix" to="/navsat/fix" />      
 
       <!-- Placeholders for output remapping.
-        <remap from="/odometry/gps to="" />
+      <remap from="/odometry/gps to="" />
       -->
-
     </node>
 
 </launch>
