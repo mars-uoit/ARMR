@@ -1,0 +1,17 @@
+<launch>
+
+    <include file="$(find radbotlive)/launch/$(optenv ROBOT jackal).machine"/>
+
+    <!-- Set to your sensor's range -->
+    <arg name="sensor_range" default="1.5"/>
+
+    <node machine="c1" pkg="radbot_exploration" type="radbot_exploration_client" name="explore_client" output="screen"/>
+
+    <node machine="c1" pkg="radbot_exploration" type="radbot_exploration_server" name="explore_server" output="screen" >
+
+        <param name="row_width" type="double" value="1.5"/>
+        <param name="global_frame" type="string" value="gps"/>
+
+    </node>
+
+</launch>

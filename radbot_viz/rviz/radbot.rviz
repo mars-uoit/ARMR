@@ -7,9 +7,6 @@ Panels:
         - /Global Options1
         - /TF1
         - /TF1/Tree1
-        - /TF1/Tree1/gps1
-        - /TF1/Tree1/gps1/odom1
-        - /TF1/Tree1/gps1/odom1/base_link1
         - /AerialMapDisplay1
       Splitter Ratio: 0.5
     Tree Height: 817
@@ -20,6 +17,7 @@ Panels:
       - /2D Pose Estimate1
       - /2D Nav Goal1
       - /Publish Point1
+      - /Plant Flag1
     Name: Tool Properties
     Splitter Ratio: 0.588679
   - Class: rviz/Views
@@ -162,8 +160,6 @@ Visualization Manager:
           Value: true
         imu_link:
           Value: true
-        map:
-          Value: true
         mid_mount:
           Value: true
         navsat_link:
@@ -207,15 +203,13 @@ Visualization Manager:
                   {}
                 rear_right_wheel_link:
                   {}
-        map:
-          {}
       Update Interval: 0
       Value: true
     - Alpha: 1
       Autocompute Intensity Bounds: true
       Autocompute Value Bounds:
-        Max Value: 5.06609
-        Min Value: -5.77081
+        Max Value: 23.7828
+        Min Value: -0.00591404
         Value: true
       Axis: Y
       Channel Name: intensity
@@ -366,7 +360,7 @@ Visualization Manager:
   Enabled: true
   Global Options:
     Background Color: 48; 48; 48
-    Fixed Frame: map
+    Fixed Frame: gps
     Frame Rate: 30
   Name: root
   Tools:
@@ -383,10 +377,20 @@ Visualization Manager:
     - Class: rviz/PublishPoint
       Single click: true
       Topic: /clicked_point
+    - Class: rviz_plugin_tutorials/PlantFlag
+      Flags:
+        - Name: Flag 0
+          X: 6.26434
+          Y: 7.57922
+          Z: 0
+        - Name: Flag 1
+          X: 0.287819
+          Y: -11.3144
+          Z: 0
   Value: true
   Views:
     Current:
-      Angle: 0
+      Angle: 4.71239
       Class: rviz/TopDownOrtho
       Enable Stereo Rendering:
         Stereo Eye Separation: 0.06
@@ -395,7 +399,7 @@ Visualization Manager:
         Value: false
       Name: Current View
       Near Clip Distance: 0.01
-      Scale: 38.6036
+      Scale: 47.1199
       Target Frame: base_link
       Value: TopDownOrtho (rviz)
       X: 0
@@ -464,5 +468,5 @@ Window Geometry:
   Views:
     collapsed: false
   Width: 1918
-  X: -7
-  Y: 17
+  X: 0
+  Y: 24

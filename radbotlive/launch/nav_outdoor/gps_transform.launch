@@ -19,7 +19,7 @@
       <param name="yaw_offset" value="1.57079633"/> 
       <param name="zero_altitude" value="true"/>
       <param name="publish_filtered_gps" value="true"/>
-      <param name="broadcast_utm_transform" value="true"/>
+      <param name="broadcast_utm_transform" value="false"/>
       
       <!-- Placeholders for input remapping. Set your topic names as the "to" values.-->
       <remap from="/imu/data" to="/imu/data" />
