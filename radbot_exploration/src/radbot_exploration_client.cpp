@@ -8,10 +8,9 @@
 
 #include <radbot_exploration/geometry_tools.h>
 
-//#include <frontier_exploration/ExploreTaskAction.h>
-//#include <frontier_exploration/ExploreTaskActionGoal.h>
-//#include <frontier_exploration/GetNextFrontier.h>
-//#include <frontier_exploration/UpdateBoundaryPolygon.h>
+#include <frontier_exploration/ExploreTaskAction.h>
+#include <frontier_exploration/ExploreTaskActionGoal.h>
+
 #include <costmap_2d/footprint.h>
 #include <tf/transform_listener.h>
 
@@ -38,7 +37,7 @@ private:
     ros::WallTimer point_viz_timer_;
     geometry_msgs::PolygonStamped input_;
 
-    bool finished_;
+    bool waiting_for_center_;
 
     /**
      * @brief Publish markers for visualization of points for boundary polygon.
@@ -69,7 +68,7 @@ private:
                 points.points.push_back(costmap_2d::toPoint(point));
             }
 
-            if(finished_){
+            if(waiting_for_center_){
                 line_strip.points.push_back(costmap_2d::toPoint(input_.polygon.points.front()));
                 points.color.a = points.color.r = line_strip.color.r = line_strip.color.a = 1.0;
             }else{
@@ -91,11 +90,12 @@ private:
       
         double average_distance = polygonPerimeter(input_.polygon) / input_.polygon.points.size();
 
-        /*if(finished){
+        if(waiting_for_center_){
             //flag is set so this is the last point of boundary polygon, i.e. center
 
             if(!pointInPolygon(point->point,input_.polygon)){
                 ROS_ERROR("Center not inside polygon, restarting");
+                input_.polygon.points.clear();
             }else{
                 actionlib::SimpleActionClient<frontier_exploration::ExploreTaskAction> exploreClient("explore_server", true);
                 exploreClient.waitForServer();
@@ -106,9 +106,9 @@ private:
                 exploreClient.sendGoal(goal);
             }
             waiting_for_center_ = false;
-            input_.polygon.points.clear();
+            
 
-        }else*/ if(input_.polygon.points.empty()){
+        }else if(input_.polygon.points.empty()){
             //first control point, so initialize header of boundary polygon
 
             input_.header = point->header;
@@ -126,7 +126,7 @@ private:
                 ROS_ERROR("Not a valid polygon, restarting");
                 input_.polygon.points.clear();
             }else{
-                finished_ = true;
+                waiting_for_center_ = true;
                 ROS_WARN("Please select an initial point for exploration inside the polygon");
             }
 
@@ -147,7 +147,7 @@ public:
     RadbotExplorationClient() :
         nh_(),
         private_nh_("~"),
-        finished_(false)
+        waiting_for_center_(false)
     {
         input_.header.frame_id = "map";
         point_ = nh_.subscribe("/clicked_point",10,&RadbotExplorationClient::pointCb, this);

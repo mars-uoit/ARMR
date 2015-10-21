@@ -65,17 +65,16 @@ find_package(catkin REQUIRED COMPONENTS
 # )
 
 ## Generate actions in the 'action' folder
-# add_action_files(
-#   FILES
-#   Action1.action
-#   Action2.action
-# )
+ add_action_files(
+   FILES
+   ExploreTask.action
+ )
 
 ## Generate added messages and services with any dependencies listed here
-# generate_messages(
-#   DEPENDENCIES
-#   geometry_msgs#   move_base_msgs#   std_msgs#   visualization_msgs
-# )
+ generate_messages(
+   DEPENDENCIES
+   geometry_msgs   move_base_msgs   std_msgs   visualization_msgs
+ )
 
 ###################################
 ## catkin specific configuration ##
@@ -103,6 +102,7 @@ catkin_package(
 include_directories(
   include
   ${catkin_INCLUDE_DIRS}
+  ${Boost_INCLUDE_DIRS}
 )
 
 ## Declare a cpp library
@@ -112,13 +112,18 @@ include_directories(
 
 ## Declare a cpp executable
  add_executable(radbot_exploration_client src/radbot_exploration_client.cpp)
+  add_executable(radbot_exploration_server src/radbot_exploration_server.cpp)
 
 ## Add cmake target dependencies of the executable/library
 ## as an example, message headers may need to be generated before nodes
-# add_dependencies(radbot_exploration_node radbot_exploration_generate_messages_cpp)
+ add_dependencies(radbot_exploration_client ${PROJECT_NAME}_generate_messages_cpp ${catkin_EXPORTED_TARGETS})
+ add_dependencies(radbot_exploration_server ${PROJECT_NAME}_generate_messages_cpp ${catkin_EXPORTED_TARGETS})
 
 ## Specify libraries to link a library or executable target against
  target_link_libraries(radbot_exploration_client
+   ${catkin_LIBRARIES}
+ )
+ target_link_libraries(radbot_exploration_server
    ${catkin_LIBRARIES}
  )
 
