@@ -90,7 +90,7 @@ while ( is.null(post.radbot)  && attempts <= 100){
   
   try(
     post.radbot <- MCMCmetrop1R(radbotlogpost, theta.init=init,
-                                thin=10, mcmc=3000, burnin=3000,
+                                thin=10, mcmc=5000, burnin=3000,
                                 tune=c(rep.col(tune, Ranges$numSrc), .5),
                                 verbose=1000, logfun=TRUE, force.samp=FALSE, obs=OBS, ranges=Ranges)
   )
@@ -102,20 +102,20 @@ print(summary(post.radbot))
 
 
 
-valDiffs <-function(vals){
-  intensities <- rep(0.0, length(vals$valX))
+valDiffs <-function(post, OBS){
+  intensities <- rep(0.0, length(OBS$obsX))
   for (i in 1:Ranges$numSrc)
   {
   SrcX = mean(post.radbot[,1+3*(i-1)])
   SrcY = mean(post.radbot[,2+3*(i-1)])
   SrcInt = mean(post.radbot[,3+3*(i-1)])
-  radius <- ((SrcX-vals$valX)^2+(SrcY-vals$valY)^2)^.5
+  radius <- ((SrcX-OBS$obsX)^2+(SrcY-OBS$obsY)^2)^.5
   intensities <- intensities + SrcInt*(radius^-2)
   }
-  return((intensities-vals$valInt)/vals$valInt)
+  return((intensities-OBS$obsInt)/OBS$obsInt)
 }
 
 plot.pos <- function(post, numSrc){
   plot(OBS$obsX, OBS$obsY,asp=1)
-  points(c(mean(post.radbot[,1]), mean(post.radbot[,4])),y = c(mean(post.radbot[,2]),mean(post.radbot[,5])))
+  points(c(mean(post.radbot[,1]), mean(post.radbot[,4])),y = c(mean(post.radbot[,2]),mean(post.radbot[,5])), pch = 19)
 }
