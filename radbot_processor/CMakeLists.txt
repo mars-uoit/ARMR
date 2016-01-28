@@ -100,9 +100,9 @@ include_directories(
 )
 
 ## Declare a cpp library
-# add_library(radbot_processor
-#   src/${PROJECT_NAME}/radbot_processor.cpp
-# )
+ add_library(radbot_processor
+   src/pso.cc
+ )
 
 ## Declare a cpp executable
 add_executable(radbot_processor_node src/main.cc)
@@ -113,6 +113,7 @@ add_executable(radbot_processor_node src/main.cc)
 
 ## Specify libraries to link a library or executable target against
 target_link_libraries(radbot_processor_node
+  radbot_processor
   ${catkin_LIBRARIES}
 )
 
