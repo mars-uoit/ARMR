@@ -11,12 +11,12 @@ pso::pso(const costfn& cost_fn, sample mins, sample maxs,
         cost_(cost_fn), min_(mins), max_(maxs), n_particles_(particles), n_iter_(
                 iter), sources_(sources) {
     n_vars_ = 3 * sources_;
-    srand(time(NULL));
+    rng_.seed(time(NULL));
 
     neigh_.assign(n_particles_ * 4, -1);
 
     //Find neighbors
-    int dim = floor(n_particles_ ^ .5);
+    int dim = floor(pow(n_particles_, .5));
     bool one_more = (n_particles_ % dim) > 0;
     for (int i = 0; i < n_particles_; i++) {
         int r = i / dim;
@@ -51,25 +51,85 @@ void pso::run() {
     for (int p = 0; p < n_particles_; p++) {
         for (int i = 0; i < sources_; i++) {
             particles_[ndx(p, i * 3)] = min_.x
-                    + (max_.x - min_.x) * (double) rand() / RAND_MAX;
+                    + (max_.x - min_.x) * uniform_(rng_);
             particles_[ndx(p, i * 3 + 1)] = min_.y
-                    + (max_.y - min_.y) * (double) rand() / RAND_MAX;
+                    + (max_.y - min_.y) * uniform_(rng_);
             particles_[ndx(p, i * 3 + 2)] = min_.counts
-                    + (max_.counts - min_.counts) * (double) rand() / RAND_MAX;
+                    + (max_.counts - min_.counts) * uniform_(rng_);
             //cerr << particles_[ndx(p, i * 3 + 2)] << endl;
         }
     }
     pbest_ = particles_;
 
     //initial run through cost fn find the global best.
-    pmin_[0] = cost_(GET_ROW(0));
+    pmin_[0] = cost_(GET_ROW(0, particles_));
     gmin_ = pmin_[0];
-    gbest_ = GET_ROW(1);
+    gbest_ = GET_ROW(1, particles_);
     for (int i = 1; i < n_particles_; i++) {
-        pmin_[i] = cost_(GET_ROW(i));
+        pmin_[i] = cost_(GET_ROW(i, particles_));
         if (pmin_[i] < gmin_) {
             gmin_ = pmin_[i];
-            gbest_ = GET_ROW(i);
+            gbest_ = GET_ROW(i, particles_);
+        }
+    }
+
+    //main loop
+    std::vector<double> lbest(n_vars_, 0);
+    for (int i = 0; i < n_iter_; i++) {
+        for (int j = 0; j < n_particles_; j++) {
+            // find local best
+            double lmin = 1000000000;
+            for (int p = 0; p < 4; p++) {
+                if (neigh_[ndx(j, p, 4)] >= 0) {
+                    if (lmin > pmin_[neigh_[ndx(j, p, 4)]]) {
+                        lbest = GET_ROW(neigh_[ndx(j, p, 4)], pbest_);
+                        lmin = pmin_[neigh_[j, p]];
+                    }
+                }
+            }
+            //main velocity and position update
+            for (int p = 0; p < n_vars_; p++) {
+                v_[ndx(j, p)] = v_[ndx(j, p)] * kW
+                        + kC1 * uniform_(rng_)
+                                * (pbest_[ndx(j, p)] - particles_[ndx(j, p)])
+                        + kC2 * uniform_(rng_)
+                                * (lbest - particles_[ndx(j, p)]);
+                particles_[ndx(j, p)] += v_[ndx(j, p)];
+            }
+            //check bounds
+            for (int p = 0; p < sources_; p++) {
+                if (particles_[ndx(i, p * 3)] > max_.x)
+                    particles_[ndx(i, p * 3)] = max_.x;
+                if (particles_[ndx(i, p * 3 + 1)] > max_.y)
+                    particles_[ndx(i, p * 3 + 1)] = max_.y;
+                if (particles_[ndx(i, p * 3 + 2)] > max_.counts)
+                    particles_[ndx(i, p * 3 + 2)] = max_.counts;
+
+                if (particles_[ndx(i, p * 3)] < min_.x)
+                    particles_[ndx(i, p * 3)] = min_.x;
+                if (particles_[ndx(i, p * 3 + 1)] < min_.y)
+                    particles_[ndx(i, p * 3 + 1)] = min_.y;
+                if (particles_[ndx(i, p * 3 + 2)] < min_.counts)
+                    particles_[ndx(i, p * 3 + 2)] = min_.counts;
+            }
+            //check for new min
+            double tmin = cost_(GET_ROW(j, particles_));
+            if (tmin < pmin_[j]) {
+                std::copy(particles_.begin() + ndx(j, 0),
+                        particles_.begin() + ndx(j + 1, 0),
+                        pbest_.begin() + ndx(j, 0)); //pbest(j,:) = particles(j,:);
+                pmin_[j] = tmin;
+                if (pmin_[j] < gmin_) {
+                    gmin_ = pmin_[j];
+                    gbest_ = GET_ROW(j, pbest_);
+                }
+            }
+            // stopping criteria (sort is costly)
+            std::vector<std::size_t> q(pmin_.size());
+            for(int p = 0; p < q.size(); p++) q.at(p) = p;
+            std::partial_sort(q.begin(), q.end()+kStopTop, q.end());
+            //TODO finish sorting
         }
     }
 }
+

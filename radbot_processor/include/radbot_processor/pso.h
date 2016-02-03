@@ -11,8 +11,11 @@
 #include <math.h>
 #include <stdlib.h>
 #include <vector>
+#include <algorithm>
 #include "radbot_processor/util.h"
 #include "radbot_processor/costfn.h"
+#include <boost/random/mersenne_twister.hpp>
+#include <boost/random/uniform_01.hpp>
 
 class pso {
 
@@ -26,9 +29,14 @@ private:
     void
     loop();
 
-    static const double c1 = 1.49;
-    static const double c2 = 1.49;
-    static const double w = 0.72;
+    static const double kC1 = 1.49;
+    static const double kC2 = 1.49;
+    static const double kW = 0.72;
+    static const int kStopTop = 10;
+    static const double kStopVal = 0.1;
+
+    boost::random::mt19937 rng_;
+    boost::random::uniform_01 uniform_;
 
     costfn cost_;
     sample min_, max_;
@@ -38,12 +46,15 @@ private:
     double gmin_;
     std::vector<int> neigh_;
 
-    size_t ndx(int r, int c, int dim = n_vars_) const {
-        return c + dim * r;
+#define GET_ROW(x, vect)(std::vector<double>(vect.begin()+x*n_vars_,vect.begin()+(x+1)*n_vars_))
+
+    size_t ndx(int r, int c) const {
+        return c + n_vars_ * r;
     }
 
-#define GET_ROW(x)(std::vector<double>(particles_.begin()+x,particles_.begin()+x+n_vars_))
-
+    size_t ndx(int r, int c, int dim) const {
+        return c + dim * r;
+    }
 };
 
 #endif /* INCLUDE_RADBOT_PROCESSOR_PSO_H_ */

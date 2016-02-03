@@ -17,7 +17,7 @@ public:
     inline costfn(std::vector<sample> readings) :
             obs_(readings) {
     }
-    //costfn with map for raytracing.
+    //space for costfn with map for raytracing.
 
     inline double operator()(std::vector<double> predict) {
         int num_src = predict.size() / 3;
