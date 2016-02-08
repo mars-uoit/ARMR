@@ -32,8 +32,12 @@ int main(int argc, char **argv) {
     openFile();
 
     costfn my_cost(measurements);
-    pso myPso(my_cost, min_val, max_val, 100, 1000, 2);
-    myPso.run();
+    pso myPso(my_cost, min_val, max_val, 100, 10000, 2);
+    std::vector<double> result;
+    result = myPso.run();
+
+    std::ostream_iterator<double> out_it (std::cout,", ");
+    std::copy ( result.begin(), result.end(), out_it );
 
     std::vector<tf::StampedTransform> locations;
     //add in service listeners

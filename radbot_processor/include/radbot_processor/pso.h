@@ -15,7 +15,7 @@
 #include "radbot_processor/util.h"
 #include "radbot_processor/costfn.h"
 #include <boost/random/mersenne_twister.hpp>
-#include <boost/random/uniform_01.hpp>
+#include <boost/random/uniform_real_distribution.hpp>
 
 class pso {
 
@@ -23,7 +23,7 @@ public:
     pso(const costfn& cost_fn, sample mins, sample maxs, unsigned int particles,
             unsigned int iter, unsigned int sources);
     ~pso();
-    void
+    std::vector<double>
     run();
 private:
     void
@@ -36,7 +36,7 @@ private:
     static const double kStopVal = 0.1;
 
     boost::random::mt19937 rng_;
-    boost::random::uniform_01 uniform_;
+    boost::random::uniform_real_distribution<double> uniform_;
 
     costfn cost_;
     sample min_, max_;
@@ -55,6 +55,16 @@ private:
     size_t ndx(int r, int c, int dim) const {
         return c + dim * r;
     }
+
+    bool sortFn(std::size_t i, std::size_t j) const { return (pmin_[i] < pmin_[j]); }
+};
+
+class sortClass {
+public:
+    sortClass(std::vector<double> a) {vec = a;}
+    bool operator() (std::size_t i, std::size_t j) { return (vec[i] < vec[j]);}
+private:
+    std::vector<double> vec;
 };
 
 #endif /* INCLUDE_RADBOT_PROCESSOR_PSO_H_ */

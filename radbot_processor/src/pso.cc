@@ -9,7 +9,7 @@
 pso::pso(const costfn& cost_fn, sample mins, sample maxs,
         unsigned int particles, unsigned int iter, unsigned int sources) :
         cost_(cost_fn), min_(mins), max_(maxs), n_particles_(particles), n_iter_(
-                iter), sources_(sources) {
+                iter), sources_(sources), gmin_(0) {
     n_vars_ = 3 * sources_;
     rng_.seed(time(NULL));
 
@@ -39,7 +39,7 @@ pso::~pso() {
 
 }
 
-void pso::run() {
+std::vector<double> pso::run() {
 
     v_.assign(n_particles_ * n_vars_, 0);
     particles_.assign(n_particles_ * n_vars_, 0);
@@ -83,7 +83,7 @@ void pso::run() {
                 if (neigh_[ndx(j, p, 4)] >= 0) {
                     if (lmin > pmin_[neigh_[ndx(j, p, 4)]]) {
                         lbest = GET_ROW(neigh_[ndx(j, p, 4)], pbest_);
-                        lmin = pmin_[neigh_[j, p]];
+                        lmin = pmin_[neigh_[ndx(j, p, 4)]];
                     }
                 }
             }
@@ -93,24 +93,24 @@ void pso::run() {
                         + kC1 * uniform_(rng_)
                                 * (pbest_[ndx(j, p)] - particles_[ndx(j, p)])
                         + kC2 * uniform_(rng_)
-                                * (lbest - particles_[ndx(j, p)]);
+                                * (lbest[p] - particles_[ndx(j, p)]);
                 particles_[ndx(j, p)] += v_[ndx(j, p)];
             }
             //check bounds
             for (int p = 0; p < sources_; p++) {
-                if (particles_[ndx(i, p * 3)] > max_.x)
-                    particles_[ndx(i, p * 3)] = max_.x;
-                if (particles_[ndx(i, p * 3 + 1)] > max_.y)
-                    particles_[ndx(i, p * 3 + 1)] = max_.y;
-                if (particles_[ndx(i, p * 3 + 2)] > max_.counts)
-                    particles_[ndx(i, p * 3 + 2)] = max_.counts;
+                if (particles_[ndx(j, p * 3)] > max_.x)
+                    particles_[ndx(j, p * 3)] = max_.x;
+                if (particles_[ndx(j, p * 3 + 1)] > max_.y)
+                    particles_[ndx(j, p * 3 + 1)] = max_.y;
+                if (particles_[ndx(j, p * 3 + 2)] > max_.counts)
+                    particles_[ndx(j, p * 3 + 2)] = max_.counts;
 
-                if (particles_[ndx(i, p * 3)] < min_.x)
-                    particles_[ndx(i, p * 3)] = min_.x;
-                if (particles_[ndx(i, p * 3 + 1)] < min_.y)
-                    particles_[ndx(i, p * 3 + 1)] = min_.y;
-                if (particles_[ndx(i, p * 3 + 2)] < min_.counts)
-                    particles_[ndx(i, p * 3 + 2)] = min_.counts;
+                if (particles_[ndx(j, p * 3)] < min_.x)
+                    particles_[ndx(j, p * 3)] = min_.x;
+                if (particles_[ndx(j, p * 3 + 1)] < min_.y)
+                    particles_[ndx(j, p * 3 + 1)] = min_.y;
+                if (particles_[ndx(j, p * 3 + 2)] < min_.counts)
+                    particles_[ndx(j, p * 3 + 2)] = min_.counts;
             }
             //check for new min
             double tmin = cost_(GET_ROW(j, particles_));
@@ -127,9 +127,24 @@ void pso::run() {
             // stopping criteria (sort is costly)
             std::vector<std::size_t> q(pmin_.size());
             for(int p = 0; p < q.size(); p++) q.at(p) = p;
-            std::partial_sort(q.begin(), q.end()+kStopTop, q.end());
-            //TODO finish sorting
+            sortClass sortFn(pmin_);
+            std::partial_sort(q.begin(), q.begin()+kStopTop, q.end(), sortFn);
+
+            bool stop = false;
+            for(std::vector<std::size_t>::iterator p = q.begin(); p != (q.begin()+kStopTop); p++) {
+                double result = 0;
+                for(int x = 0; x < n_vars_; x++){
+                    result += pow(pbest_[ndx(*p,x)]-gbest_[x], 2);
+                }
+                result = pow(result, 0.5);
+                if(result > kStopVal)
+                    break;
+                if(p == (q.begin()+kStopTop))//time to stop
+                    return gbest_;
+            }
         }
+        cout << i << std::endl;
     }
+    return gbest_;
 }
 
