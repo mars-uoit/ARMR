@@ -9,7 +9,7 @@
 pso::pso(const costfn& cost_fn, sample mins, sample maxs,
         unsigned int particles, unsigned int iter, unsigned int sources) :
         cost_(cost_fn), min_(mins), max_(maxs), n_particles_(particles), n_iter_(
-                iter), sources_(sources), gmin_(0) {
+                iter), sources_(sources), gmin_(100000000) {
     n_vars_ = 3 * sources_;
     rng_.seed(time(NULL));
 
@@ -34,6 +34,7 @@ pso::pso(const costfn& cost_fn, sample mins, sample maxs,
                 neigh_[ndx(i, 3, 4)] = ndx(r, c + 1, dim);
         }
     }
+    gbest_.assign(n_vars_, 0);
 }
 pso::~pso() {
 
@@ -44,7 +45,6 @@ std::vector<double> pso::run() {
     v_.assign(n_particles_ * n_vars_, 0);
     particles_.assign(n_particles_ * n_vars_, 0);
     pbest_.assign(n_particles_ * n_vars_, 0);
-    gbest_.assign(n_vars_, 0);
     pmin_.assign(n_particles_, 0);
 
     //initialize randomly
@@ -59,12 +59,15 @@ std::vector<double> pso::run() {
             //cerr << particles_[ndx(p, i * 3 + 2)] << endl;
         }
     }
+    //copy previous best into swarm
+    std::copy(gbest_.begin(), gbest_.end(), particles_.begin());
     pbest_ = particles_;
 
     //initial run through cost fn find the global best.
     pmin_[0] = cost_(GET_ROW(0, particles_));
     gmin_ = pmin_[0];
-    gbest_ = GET_ROW(1, particles_);
+    gbest_ = GET_ROW(0, particles_);
+
     for (int i = 1; i < n_particles_; i++) {
         pmin_[i] = cost_(GET_ROW(i, particles_));
         if (pmin_[i] < gmin_) {
@@ -126,25 +129,30 @@ std::vector<double> pso::run() {
             }
             // stopping criteria (sort is costly)
             std::vector<std::size_t> q(pmin_.size());
-            for(int p = 0; p < q.size(); p++) q.at(p) = p;
+            for (int p = 0; p < q.size(); p++) {
+                q.at(p) = p;
+            }
             sortClass sortFn(pmin_);
-            std::partial_sort(q.begin(), q.begin()+kStopTop, q.end(), sortFn);
+            std::partial_sort(q.begin(), q.begin() + kStopTop, q.end(), sortFn);
 
-            bool stop = false;
-            for(std::vector<std::size_t>::iterator p = q.begin(); p != (q.begin()+kStopTop); p++) {
+            for (std::vector<std::size_t>::iterator p = q.begin();
+                    p != (q.begin() + kStopTop); p++) {
                 double result = 0;
-                for(int x = 0; x < n_vars_; x++){
-                    result += pow(pbest_[ndx(*p,x)]-gbest_[x], 2);
+                for (int x = 0; x < n_vars_; x++) {
+                    result += pow(pbest_[ndx(*p, x)] - gbest_[x], 2);
                 }
                 result = pow(result, 0.5);
-                if(result > kStopVal)
+                if (result > kStopVal)
                     break;
-                if(p == (q.begin()+kStopTop))//time to stop
+                if (p == (q.begin() + kStopTop - 1)) { //time to stop
+                    cout << "cost: " << gmin_ << " iter: " << i << std::endl;
                     return gbest_;
+                }
             }
         }
-        cout << i << std::endl;
+        ROS_DEBUG("iter: %i", i);
     }
+    cout << "cost: " << gmin_ << std::endl;
     return gbest_;
 }
 

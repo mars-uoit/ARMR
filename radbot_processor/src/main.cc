@@ -9,6 +9,7 @@
 #include <sstream>
 #include <string>
 #include <vector>
+#include <ctime>
 using namespace std;
 #include "ros/ros.h"
 #include "tf/transform_listener.h"
@@ -31,13 +32,25 @@ int main(int argc, char **argv) {
 
     openFile();
 
-    costfn my_cost(measurements);
-    pso myPso(my_cost, min_val, max_val, 100, 10000, 2);
+    costfn my_cost(
+            vector<sample>(measurements.begin(), measurements.begin() + 11));
+    //costfn my_cost(measurements);
+    pso my_pso(my_cost, min_val, max_val, 100, 5000, 2);
     std::vector<double> result;
-    result = myPso.run();
 
-    std::ostream_iterator<double> out_it (std::cout,", ");
-    std::copy ( result.begin(), result.end(), out_it );
+    std::ostream_iterator<double> out_it(std::cout, ", ");
+
+    clock_t t0 = clock(), t1;
+    for (vector<sample>::iterator i = measurements.begin() + 11;
+            i != measurements.end(); i++) {
+        my_cost.addSample(*i);
+        my_pso.setCostFn(my_cost);
+        result = my_pso.run();
+        std::copy(result.begin(), result.end(), out_it);
+        cout << endl;
+    }
+    t1 = clock() - t0;
+    cerr << (float) t1 / CLOCKS_PER_SEC << endl;
 
     std::vector<tf::StampedTransform> locations;
     //add in service listeners
@@ -53,7 +66,7 @@ int main(int argc, char **argv) {
 
 inline void openFile() {
     try {
-        infile.open("data.csv", ifstream::in);
+        infile.open("datawval.csv", ifstream::in);
     } catch (ifstream::failure * e) {
         cerr << "Exception opening/reading/closing file\n";
     }

@@ -40,6 +40,10 @@ public:
         }
         return pow(cost / num_obs, 0.5);
     }
+
+    inline void addSample(sample samp) {
+        obs_.push_back(samp);
+    }
 private:
     std::vector<sample> obs_;
 

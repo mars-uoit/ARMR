@@ -16,6 +16,7 @@
 #include "radbot_processor/costfn.h"
 #include <boost/random/mersenne_twister.hpp>
 #include <boost/random/uniform_real_distribution.hpp>
+#include "ros/ros.h"
 
 class pso {
 
@@ -25,6 +26,17 @@ public:
     ~pso();
     std::vector<double>
     run();
+    inline void setCostFn(const costfn& cost_fn) {
+        cost_ = cost_fn;
+    }
+
+    void setSources(unsigned int sources) {
+        sources_ = sources;
+        n_vars_ = 3 * sources_;
+        gbest_.assign(n_vars_, 0);
+        gmin_ = 100000000;
+    }
+
 private:
     void
     loop();
@@ -33,7 +45,7 @@ private:
     static const double kC2 = 1.49;
     static const double kW = 0.72;
     static const int kStopTop = 10;
-    static const double kStopVal = 0.1;
+    static const double kStopVal = 10;
 
     boost::random::mt19937 rng_;
     boost::random::uniform_real_distribution<double> uniform_;
@@ -56,13 +68,19 @@ private:
         return c + dim * r;
     }
 
-    bool sortFn(std::size_t i, std::size_t j) const { return (pmin_[i] < pmin_[j]); }
+    bool sortFn(std::size_t i, std::size_t j) const {
+        return (pmin_[i] < pmin_[j]);
+    }
 };
 
 class sortClass {
 public:
-    sortClass(std::vector<double> a) {vec = a;}
-    bool operator() (std::size_t i, std::size_t j) { return (vec[i] < vec[j]);}
+    sortClass(std::vector<double> a) {
+        vec = a;
+    }
+    bool operator()(std::size_t i, std::size_t j) {
+        return (vec[i] < vec[j]);
+    }
 private:
     std::vector<double> vec;
 };
