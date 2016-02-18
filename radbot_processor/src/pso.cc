@@ -145,14 +145,14 @@ std::vector<double> pso::run() {
                 if (result > kStopVal)
                     break;
                 if (p == (q.begin() + kStopTop - 1)) { //time to stop
-                    cout << "cost: " << gmin_ << " iter: " << i << std::endl;
+                    ROS_INFO_STREAM("cost: " << gmin_ << " iter: " << i);
                     return gbest_;
                 }
             }
         }
         ROS_DEBUG("iter: %i", i);
     }
-    cout << "cost: " << gmin_ << std::endl;
+    ROS_INFO_STREAM("cost: " << gmin_);
     return gbest_;
 }
 

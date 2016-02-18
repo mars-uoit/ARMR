@@ -7,8 +7,10 @@ project(radbot_processor)
 find_package(catkin REQUIRED COMPONENTS
   actionlib
   actionlib_msgs
-  frontier_exploration
-  move_base_msgs
+  std_msgs
+  message_generation
+  tf
+  ursa_driver
 )
 
 ## System dependencies are found with CMake's conventions
@@ -59,17 +61,18 @@ find_package(Boost REQUIRED COMPONENTS system random)
 # )
 
 ## Generate actions in the 'action' folder
-# add_action_files(
-#   FILES
-#   Action1.action
-#   Action2.action
-# )
+ add_action_files(
+   FILES
+   sample.action
+   pso.action
+ )
 
 ## Generate added messages and services with any dependencies listed here
-# generate_messages(
-#   DEPENDENCIES
-#   actionlib_msgs#   move_base_msgs
-# )
+generate_messages(
+  DEPENDENCIES
+  actionlib_msgs
+  std_msgs
+)
 
 ###################################
 ## catkin specific configuration ##
@@ -81,9 +84,9 @@ find_package(Boost REQUIRED COMPONENTS system random)
 ## CATKIN_DEPENDS: catkin_packages dependent projects also need
 ## DEPENDS: system dependencies of this project that dependent projects also need
 catkin_package(
-   INCLUDE_DIRS include
+  INCLUDE_DIRS include
 #  LIBRARIES radbot_processor
-#  CATKIN_DEPENDS actionlib actionlib_msgs frontier_exploration move_base_msgs
+  CATKIN_DEPENDS actionlib actionlib_msgs std_msgs
 #  DEPENDS system_lib
 )
 
@@ -100,16 +103,17 @@ include_directories(
 )
 
 ## Declare a cpp library
- add_library(radbot_processor
-   src/pso.cc
- )
+add_library(radbot_processor
+  src/pso.cc
+)
 
 ## Declare a cpp executable
 add_executable(radbot_processor_node src/main.cc)
 
 ## Add cmake target dependencies of the executable/library
 ## as an example, message headers may need to be generated before nodes
-# add_dependencies(radbot_processor_node radbot_processor_generate_messages_cpp)
+  add_dependencies(radbot_processor_node radbot_processor_generate_messages_cpp)
+  add_dependencies(radbot_processor_node ${catkin_EXPORTED_TARGETS})
 
 ## Specify libraries to link a library or executable target against
 target_link_libraries(radbot_processor_node
