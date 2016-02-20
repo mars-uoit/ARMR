@@ -16,10 +16,9 @@ using namespace std;
 #include "ursa_driver/ursa_counts.h"
 #include <actionlib/server/simple_action_server.h>
 #include "radbot_processor/sampleAction.h"
+#include "radbot_processor/psoAction.h"
 #include "radbot_processor/util.h"
 #include "radbot_processor/pso.h"
-
-#define INFLATE 0.15
 
 ros::MultiThreadedSpinner spinner(4);
 
@@ -36,14 +35,17 @@ unsigned int sample_count;
 unsigned int sample_goal;
 double sample_sum;
 
-//pso action variables
-
 void sampleGoalCB();
 void samplePreemptCB();
 void sampleCB(const ursa_driver::ursa_countsConstPtr msg);
 
+//pso action variables
+actionlib::SimpleActionServer<radbot_processor::psoAction> * psoAs;
+void psoExecuteCB(const radbot_processor::psoGoalConstPtr &goal);
+
 ifstream infile;
 costfn * my_cost;
+pso * my_pso;
 
 void
 openFile();
@@ -51,7 +53,7 @@ openFile();
 int main(int argc, char **argv) {
     ros::init(argc, argv, "radbot_processor");
     ros::NodeHandle nh;
-    ros::NodeHandle pnh(nh, "~");
+    ros::NodeHandle pnh("~");
 
     pnh.param<std::string>("global_frame", global_frame, "map");
     pnh.param<std::string>("topic", rad_topic, "counts");
@@ -64,7 +66,10 @@ int main(int argc, char **argv) {
     sampleAs->registerPreemptCallback(&samplePreemptCB);
     sample_sub = nh.subscribe(rad_topic, 1, &sampleCB);
 
+    psoAs = new actionlib::SimpleActionServer<radbot_processor::psoAction>(nh,
+            "process_pso", &psoExecuteCB, false);
 
+    my_pso = new pso(*my_cost, min_val, max_val, 100, 10000, 2);
 
 #ifdef DEBUG
     openFile();
@@ -137,6 +142,20 @@ inline void samplePreemptCB() {
     sampleAs->setPreempted();
 }
 
+void psoExecuteCB(const radbot_processor::psoGoalConstPtr &goal) {
+    vector<sample> temp(my_cost->getObs());
+    minimax(temp, &max_val, &min_val);
+    my_pso->setCostFn(*my_cost);
+    my_pso->setParticles(goal->particles);
+    my_pso->setSources(goal->numSrc);
+    my_pso->setBounds(max_val, min_val);
+
+    radbot_processor::psoResult res;
+    res.params = my_pso->run();
+    res.cost = my_pso->getGMin();
+    psoAs->setSucceeded(res);
+}
+
 inline void openFile() {
     try {
         infile.open("datawval.csv", ifstream::in);
@@ -181,25 +200,6 @@ inline void openFile() {
     }
     ROS_INFO_STREAM("Size of point list:" << measurements.size());
 
-    vector<sample>::iterator itr;
-    itr = max_element(measurements.begin(), measurements.end(), cmpX);
-    max_val.x = (*itr).x;
-    itr = max_element(measurements.begin(), measurements.end(), cmpY);
-    max_val.y = (*itr).y;
-    itr = min_element(measurements.begin(), measurements.end(), cmpX);
-    min_val.x = (*itr).x;
-    itr = min_element(measurements.begin(), measurements.end(), cmpY);
-    min_val.y = (*itr).y;
-    double inflate;
-    inflate = ((max_val.x - min_val.x) / 2) * INFLATE;
-    min_val.x -= inflate;
-    max_val.x += inflate;
-    inflate = ((max_val.y - min_val.y) / 2) * INFLATE;
-    min_val.y -= inflate;
-    max_val.y += inflate;
+    minimax(measurements, &max_val, &min_val);
 
-    min_val.counts = 0;
-    max_val.counts = 10000000;
-    ROS_INFO_STREAM(
-            "Max Vals:" << max_val << endl << "Min Vals:" << min_val << endl);
 }

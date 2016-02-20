@@ -9,7 +9,7 @@
 pso::pso(const costfn& cost_fn, sample mins, sample maxs,
         unsigned int particles, unsigned int iter, unsigned int sources) :
         cost_(cost_fn), min_(mins), max_(maxs), n_particles_(particles), n_iter_(
-                iter), sources_(sources), gmin_(100000000) {
+                iter), sources_(sources), gmin_(100000000), stop_top_(10) {
     n_vars_ = 3 * sources_;
     rng_.seed(time(NULL));
 
@@ -133,10 +133,11 @@ std::vector<double> pso::run() {
                 q.at(p) = p;
             }
             sortClass sortFn(pmin_);
-            std::partial_sort(q.begin(), q.begin() + kStopTop, q.end(), sortFn);
+            std::partial_sort(q.begin(), q.begin() + stop_top_, q.end(),
+                    sortFn);
 
             for (std::vector<std::size_t>::iterator p = q.begin();
-                    p != (q.begin() + kStopTop); p++) {
+                    p != (q.begin() + stop_top_); p++) {
                 double result = 0;
                 for (int x = 0; x < n_vars_; x++) {
                     result += pow(pbest_[ndx(*p, x)] - gbest_[x], 2);
@@ -144,7 +145,7 @@ std::vector<double> pso::run() {
                 result = pow(result, 0.5);
                 if (result > kStopVal)
                     break;
-                if (p == (q.begin() + kStopTop - 1)) { //time to stop
+                if (p == (q.begin() + stop_top_ - 1)) { //time to stop
                     ROS_INFO_STREAM("cost: " << gmin_ << " iter: " << i);
                     return gbest_;
                 }

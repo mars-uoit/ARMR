@@ -1,3 +1,6 @@
-int32 mode
+int32 particles
+int32 numSrc
 ---
+float64 cost
+float64[] params
 ---

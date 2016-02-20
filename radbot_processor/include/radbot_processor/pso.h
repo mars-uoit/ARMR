@@ -37,6 +37,18 @@ public:
         gmin_ = 100000000;
     }
 
+    void setBounds(const sample &maxs, const sample &mins) {
+        min_ = mins;
+        max_ = maxs;
+    }
+    void setParticles(unsigned int particles) {
+        n_particles_ = particles;
+        stop_top_ = 0.1 * particles;
+    }
+    double getGMin() {
+        return gmin_;
+    }
+
 private:
     void
     loop();
@@ -44,8 +56,8 @@ private:
     static const double kC1 = 1.49;
     static const double kC2 = 1.49;
     static const double kW = 0.72;
-    static const int kStopTop = 10;
     static const double kStopVal = 10;
+    int stop_top_;
 
     boost::random::mt19937 rng_;
     boost::random::uniform_real_distribution<double> uniform_;
