@@ -103,7 +103,7 @@ find_package(catkin REQUIRED COMPONENTS
 catkin_package(
 #  INCLUDE_DIRS include
 #  LIBRARIES my_code
-   CATKIN_DEPENDS roscpp visualization_msgs ursa_driver
+   CATKIN_DEPENDS roscpp ursa_driver
 #  DEPENDS system_lib
 )
 
