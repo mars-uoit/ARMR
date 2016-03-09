@@ -100,6 +100,7 @@ catkin_package(
 # include_directories(include)
 include_directories(
   include
+  ${Boost_INCLUDE_DIRS}
   ${catkin_INCLUDE_DIRS}
 )
 
