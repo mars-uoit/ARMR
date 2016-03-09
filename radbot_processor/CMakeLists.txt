@@ -5,6 +5,7 @@ project(radbot_processor)
 ## if COMPONENTS list like find_package(catkin REQUIRED COMPONENTS xyz)
 ## is used, also find other catkin packages
 find_package(catkin REQUIRED COMPONENTS
+  roscpp
   actionlib
   actionlib_msgs
   std_msgs
@@ -86,7 +87,7 @@ generate_messages(
 catkin_package(
   INCLUDE_DIRS include
 #  LIBRARIES radbot_processor
-  CATKIN_DEPENDS actionlib actionlib_msgs std_msgs
+  CATKIN_DEPENDS roscpp actionlib actionlib_msgs std_msgs
 #  DEPENDS system_lib
 )
 
