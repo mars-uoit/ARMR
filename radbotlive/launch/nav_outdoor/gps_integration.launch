@@ -8,60 +8,61 @@
         args="odometry/filtered odometry/filtered/local" /> 
 
   <node machine="c2" pkg="robot_localization" type="ekf_localization_node" name="global_localization" clear_params="true" output="screen">
-      <param name="frequency" value="30"/>
-      <param name="sensor_timeout" value="0.1"/>
-      <param name="two_d_mode" value="false"/>
+    <param name="frequency" value="30"/>
+    <param name="sensor_timeout" value="0.1"/>
+    <param name="two_d_mode" value="false"/>
 
-      <param name="map_frame" value="gps"/>
-      <param name="odom_frame" value="odom"/>
-      <param name="base_link_frame" value="base_link"/>
-      <param name="world_frame" value="gps"/>
+    <param name="map_frame" value="gps"/>
+    <param name="odom_frame" value="odom"/>
+    <param name="base_link_frame" value="base_link"/>
+    <param name="world_frame" value="gps"/>
 
-      <param name="transform_time_offset" value="0.0"/>
+    <param name="transform_time_offset" value="0.0"/>
 
-      <param name="odom0" value="/jackal_velocity_controller/odom"/>
-      <param name="odom1" value="/odometry/gps"/>
-      <param name="imu0" value="/imu/data"/>
+    <param name="odom0" value="/jackal_velocity_controller/odom"/>
+    <param name="odom1" value="/odometry/gps"/>
+    <param name="imu0" value="/imu/data"/>
 
-      <rosparam param="odom0_config">[true, true, false,
-                                      false, false, false,
-                                      true, true, true,
-                                      false, false, true,
-                                      false, false, false]</rosparam>
+    <rosparam param="odom0_config">[true, true, false,
+                                    false, false, false,
+                                    true, true, true,
+                                    false, false, true,
+                                    false, false, false]</rosparam>
 
-      <rosparam param="odom1_config">[true, true, false,
-                                      false, false, false,
-                                      false, false, false,
-                                      false, false, false,
-                                      false, false, false]</rosparam>
+    <rosparam param="odom1_config">[true, true, false,
+                                    false, false, false,
+                                    false, false, false,
+                                    false, false, false,
+                                    false, false, false]</rosparam>
 
-      <rosparam param="imu0_config">[false, false, false,
-                                     true,  true,  true,
-                                     false, false, false,
-                                     true,  true,  true,
-                                     true,  true,  true]</rosparam>
+    <rosparam param="imu0_config">[false, false, false,
+                                   true,  true,  true,
+                                   false, false, false,
+                                   true,  true,  true,
+                                   true,  true,  true]</rosparam>
 
-      <param name="odom0_differential" value="true"/>
-      <param name="odom1_differential" value="false"/>
-      <param name="imu0_differential" value="false"/>
+    <param name="odom0_differential" value="true"/>
+    <param name="odom1_differential" value="false"/>
+    <param name="imu0_differential" value="false"/>
 
-      <param name="odom0_relative" value="false"/>
-      <param name="odom1_relative" value="false"/>
-      <param name="imu0_relative" value="false"/>
+    <param name="odom0_relative" value="false"/>
+    <param name="odom1_relative" value="false"/>
+    <param name="imu0_relative" value="false"/>
 
-      <param name="imu0_remove_gravitational_acceleration" value="true"/>
-      <param name="print_diagnostics" value="true"/>
+    <param name="imu0_remove_gravitational_acceleration" value="true"/>
+    <param name="print_diagnostics" value="true"/>
 
-      <param name="odom0_queue_size" value="10"/>
-      <param name="odom1_queue_size" value="10"/>
-      <param name="imu0_queue_size" value="10"/>
+    <param name="odom0_queue_size" value="10"/>
+    <param name="odom1_queue_size" value="10"/>
+    <param name="imu0_queue_size" value="10"/>
 
-      <param name="debug"           value="false"/>
-      <param name="debug_out_file"  value="debug_ekf_localization.txt"/>
+    <param name="debug"           value="false"/>
+    <param name="debug_out_file"  value="debug_ekf_localization.txt"/>
 
-      <remap from="/odometry/filtered" to="/odometry/filtered/global"/>
+    <remap from="/odometry/filtered" to="/odometry/filtered/global"/>
 
-    <rosparam param="process_noise_covariance">[0.03, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0,
+    #Jackal uses defaults now
+    <!-- <rosparam param="process_noise_covariance">[0.03, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0,
                                                 0.0, 0.03, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0,
                                                 0.0, 0.0, 0.000001, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0,
                                                 0.0, 0.0, 0.0, 0.03, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0,
@@ -73,7 +74,7 @@
                                                 0.0, 0.0, 0.0, 0.0, 0.00, 0.0, 0.0, 0.0, 0.0, 0.002, 0.0, 0.0,
                                                 0.0, 0.0, 0.0, 0.0, 0.00, 0.0, 0.0, 0.0, 0.0, 0.0, 0.002, 0.0,
                                                 0.0, 0.0, 0.0, 0.0, 0.00, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.004] 
-    </rosparam>
+    </rosparam> -->
   </node>
 	 
 </launch>
