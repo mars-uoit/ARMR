@@ -1,12 +1,10 @@
 #include <ros/ros.h>
 #include <tf/transform_listener.h>
 #include <tf/transform_broadcaster.h>
-//#include <geometry_msgs/Twist.h>
 #include "ursa_driver/ursa_counts.h"
 
 int main(int argc, char** argv){
   ros::init(argc, argv, "jackal_tf_listener");
-  //ros::init(argc, argv, "my_tf_broadcaster");
   ros::NodeHandle node("~");
   ros::Publisher publisher = node.advertise<ursa_driver::ursa_counts>("counts", 10);
 
@@ -67,7 +65,7 @@ int main(int argc, char** argv){
 
   node.param("x4", rad4_location_x, 0.0);
   node.param("y4", rad4_location_y, 0.0);
-  node.param("rad_strength3", rad3_source_strength, 0.0);
+  node.param("rad_strength4", rad4_source_strength, 0.0);
 
   ros::Rate rate(10.0);
   while (node.ok())
