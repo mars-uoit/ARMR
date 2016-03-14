@@ -87,7 +87,7 @@ generate_messages(
 catkin_package(
   INCLUDE_DIRS include
 #  LIBRARIES radbot_processor
-  CATKIN_DEPENDS roscpp actionlib actionlib_msgs std_msgs
+  CATKIN_DEPENDS ursa_driver actionlib actionlib_msgs std_msgs
 #  DEPENDS system_lib
 )
 
@@ -114,8 +114,8 @@ add_executable(radbot_processor_node src/main.cc)
 
 ## Add cmake target dependencies of the executable/library
 ## as an example, message headers may need to be generated before nodes
-  add_dependencies(radbot_processor_node radbot_processor_generate_messages_cpp)
-  add_dependencies(radbot_processor_node ${catkin_EXPORTED_TARGETS})
+  add_dependencies(${PROJECT_NAME} radbot_processor_generate_messages_cpp)
+  add_dependencies(${PROJECT_NAME} ${catkin_EXPORTED_TARGETS})
 
 ## Specify libraries to link a library or executable target against
 target_link_libraries(radbot_processor_node
