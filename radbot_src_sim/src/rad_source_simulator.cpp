@@ -3,24 +3,6 @@
 #include <tf/transform_broadcaster.h>
 #include "ursa_driver/ursa_counts.h"
 
-int main(int argc, char** argv){
-  ros::init(argc, argv, "jackal_tf_listener");
-  ros::NodeHandle node("~");
-  ros::Publisher publisher = node.advertise<ursa_driver::ursa_counts>("counts", 10);
-
-  //******************************** TF Broadaster - Start ********************************
-  tf::TransformBroadcaster br;
-  tf::Transform rad_source1;
-  tf::Transform rad_source2;
-  tf::Transform rad_source3;
-  tf::Transform rad_source4;
-
-  tf::TransformListener listener; 
-  tf::StampedTransform rad_source1_transform;
-  tf::StampedTransform rad_source2_transform;
-  tf::StampedTransform rad_source3_transform;
-  tf::StampedTransform rad_source4_transform;
-
   double rad1_location_x;
   double rad1_location_y;
   double rad1_relative_position_x;
@@ -50,7 +32,27 @@ int main(int argc, char** argv){
   double rad4_measured_dose; //The measured radition dose recieved from source 4
 
   double total_rad_dose;
+  std::string global_frame;
 
+int main(int argc, char** argv){
+  ros::init(argc, argv, "rad_source_sim");
+  ros::NodeHandle nh("~");
+  ros::NodeHandle node("~");
+  ros::Publisher publisher = nh.advertise<ursa_driver::ursa_counts>("/counts", 10);
+
+  tf::TransformBroadcaster br;
+  tf::Transform rad_source1;
+  tf::Transform rad_source2;
+  tf::Transform rad_source3;
+  tf::Transform rad_source4;
+
+  tf::TransformListener listener; 
+  tf::StampedTransform rad_source1_transform;
+  tf::StampedTransform rad_source2_transform;
+  tf::StampedTransform rad_source3_transform;
+  tf::StampedTransform rad_source4_transform;
+
+  node.param<std::string>("global_frame", global_frame, "map");
   node.param("x1", rad1_location_x, 0.0);
   node.param("y1", rad1_location_y, 0.0);
   node.param("rad_strength1", rad1_source_strength, 0.0);
@@ -67,24 +69,26 @@ int main(int argc, char** argv){
   node.param("y4", rad4_location_y, 0.0);
   node.param("rad_strength4", rad4_source_strength, 0.0);
 
-  ros::Rate rate(10.0);
+    //******************************** TF Broadaster - End ********************************
+
+  ros::Rate rate(1.0);
   while (node.ok())
   {
     rad_source1.setOrigin( tf::Vector3(rad1_location_x, rad1_location_y, 0.0) );
     rad_source1.setRotation( tf::Quaternion(0, 0, 0, 1) );
-    br.sendTransform(tf::StampedTransform(rad_source1, ros::Time::now(), "odom", "rad_source1"));
+    br.sendTransform(tf::StampedTransform(rad_source1, ros::Time::now(), global_frame, "rad_source1"));
 
     rad_source2.setOrigin( tf::Vector3(rad2_location_x, rad2_location_y, 0.0) );
     rad_source2.setRotation( tf::Quaternion(0, 0, 0, 1) );
-    br.sendTransform(tf::StampedTransform(rad_source2, ros::Time::now(), "odom", "rad_source2"));
+    br.sendTransform(tf::StampedTransform(rad_source2, ros::Time::now(), global_frame, "rad_source2"));
 
     rad_source3.setOrigin( tf::Vector3(rad3_location_x, rad3_location_y, 0.0) );
     rad_source3.setRotation( tf::Quaternion(0, 0, 0, 1) );
-    br.sendTransform(tf::StampedTransform(rad_source3, ros::Time::now(), "odom", "rad_source3"));
+    br.sendTransform(tf::StampedTransform(rad_source3, ros::Time::now(), global_frame, "rad_source3"));
 
     rad_source4.setOrigin( tf::Vector3(rad4_location_x, rad4_location_y, 0.0) );
     rad_source4.setRotation( tf::Quaternion(0, 0, 0, 1) );
-    br.sendTransform(tf::StampedTransform(rad_source4, ros::Time::now(), "odom", "rad_source4"));
+    br.sendTransform(tf::StampedTransform(rad_source4, ros::Time::now(), global_frame, "rad_source4"));
 
     //******************************** TF Broadaster - End ********************************
 
@@ -92,13 +96,13 @@ int main(int argc, char** argv){
     //******************************** TF Listener - Start ********************************
     try
     {
-      listener.lookupTransform("/base_link", "/rad_source1", ros::Time(0), rad_source1_transform);
+      listener.lookupTransform("base_link", "rad_source1", ros::Time(0), rad_source1_transform);
 
-      listener.lookupTransform("/base_link", "/rad_source2", ros::Time(0), rad_source2_transform);
+      listener.lookupTransform("base_link", "rad_source2", ros::Time(0), rad_source2_transform);
 
-      listener.lookupTransform("/base_link", "/rad_source3", ros::Time(0), rad_source3_transform);
+      listener.lookupTransform("base_link", "rad_source3", ros::Time(0), rad_source3_transform);
 
-      listener.lookupTransform("/base_link", "/rad_source4", ros::Time(0), rad_source4_transform);
+      listener.lookupTransform("base_link", "rad_source4", ros::Time(0), rad_source4_transform);
     }
     catch (tf::TransformException &ex)
     {
@@ -126,14 +130,8 @@ int main(int argc, char** argv){
 
     total_rad_dose =  rad1_measured_dose + rad2_measured_dose + rad3_measured_dose + rad4_measured_dose;
 
-    ROS_INFO_STREAM (rad1_measured_dose);
-    ROS_INFO_STREAM (rad2_measured_dose);
-    ROS_INFO_STREAM (rad3_measured_dose);
-    ROS_INFO_STREAM (rad4_measured_dose);
-    ROS_INFO_STREAM (total_rad_dose);
-
-    ROS_INFO("Testing Testing Testing");
-
+    ROS_DEBUG_STREAM ("Rad doses:" << "\t1: " << rad1_measured_dose << "\t2: " << rad2_measured_dose << "\t3: " << rad3_measured_dose << "\t4: " << rad4_measured_dose << "\tTotal: "<< total_rad_dose);
+       
     ursa_driver::ursa_counts temp;
 
     temp.header.stamp = ros::Time::now();

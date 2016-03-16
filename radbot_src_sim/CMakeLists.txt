@@ -1,12 +1,11 @@
 cmake_minimum_required(VERSION 2.8.3)
-project(rad_source_sim)
+project(radbot_src_sim)
 
 ## Find catkin macros and libraries
 ## if COMPONENTS list like find_package(catkin REQUIRED COMPONENTS xyz)
 ## is used, also find other catkin packages
 find_package(catkin REQUIRED COMPONENTS
   roscpp
-  rospy
   tf
   ursa_driver
 )
@@ -129,16 +128,16 @@ include_directories(
 # add_dependencies(my_code ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
 
 ## Declare a C++ executable
-# add_executable(my_code_node src/my_code_node.cpp)
+ add_executable(sim_node src/rad_source_simulator.cpp)
 
 ## Add cmake target dependencies of the executable
 ## same as for the library above
 # add_dependencies(my_code_node ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
 
 ## Specify libraries to link a library or executable target against
-# target_link_libraries(my_code_node
-#   ${catkin_LIBRARIES}
-# )
+ target_link_libraries(sim_node
+   ${catkin_LIBRARIES}
+ )
 
 #############
 ## Install ##

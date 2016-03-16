@@ -1,11 +1,5 @@
 <launch>
-  <!-- Opens Rviz -->
-  <param name="use_gui" value="true"/>
-  <arg name="config2" default="robot" />
-  <node name="rviz" pkg="rviz" type="rviz" args="-d $(find my_code)jackal_viz/rviz/$(arg config2).rviz" />
-
-  <!-- tf listener -->
-  <node pkg="my_code" type="rad_source_simulator"
+  <node pkg="radbot_src_sim" type="sim_node"
     name="listener" output="screen">
 
     <param name="x1" value="1"/>

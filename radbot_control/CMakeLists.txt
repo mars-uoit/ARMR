@@ -10,7 +10,8 @@ find_package(catkin REQUIRED COMPONENTS
   actionlib_msgs
   std_msgs
   move_base_msgs
-  tf
+  geometry_msgs
+  radbot_processor
 )
 
 ## System dependencies are found with CMake's conventions
@@ -84,7 +85,7 @@ find_package(Boost REQUIRED COMPONENTS system)
 catkin_package(
 #  INCLUDE_DIRS include
 #  LIBRARIES radbot_control
-  CATKIN_DEPENDS move_base_msgs actionlib actionlib_msgs std_msgs
+  CATKIN_DEPENDS radbot_processor move_base_msgs geometry_msgs actionlib actionlib_msgs std_msgs
 #  DEPENDS system_lib
 )
 
@@ -111,7 +112,7 @@ add_executable(radbot_control_node src/main.cc)
 ## Add cmake target dependencies of the executable/library
 ## as an example, message headers may need to be generated before nodes
 #  add_dependencies(radbot_control_node radbot_control_generate_messages_cpp)
-#  add_dependencies(radbot_control_node ${catkin_EXPORTED_TARGETS})
+add_dependencies(radbot_control_node ${catkin_EXPORTED_TARGETS})
 
 ## Specify libraries to link a library or executable target against
 target_link_libraries(radbot_control_node

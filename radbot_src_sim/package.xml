@@ -1,6 +1,6 @@
 <?xml version="1.0"?>
 <package>
-  <name>rad_source_sim</name>
+  <name>radbot_src_sim</name>
   <version>0.0.0</version>
   <description>The my_code package</description>
 

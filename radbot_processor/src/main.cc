@@ -47,6 +47,8 @@ ifstream infile;
 costfn * my_cost;
 pso * my_pso;
 
+tf::TransformListener * tf_listener;
+
 void
 openFile();
 
@@ -54,6 +56,7 @@ int main(int argc, char **argv) {
     ros::init(argc, argv, "radbot_processor");
     ros::NodeHandle nh;
     ros::NodeHandle pnh("~");
+    tf_listener = new tf::TransformListener(nh);
 
     pnh.param<std::string>("global_frame", global_frame, "map");
     pnh.param<std::string>("topic", rad_topic, "counts");
@@ -91,6 +94,9 @@ int main(int argc, char **argv) {
     //cerr << (float) t1 / CLOCKS_PER_SEC << endl;
 #endif
 
+    sampleAs->start();
+    psoAs->start();
+    ROS_INFO("PSO Ready");
     spinner.spin();
 
 }
@@ -103,19 +109,23 @@ inline void sampleCB(const ursa_driver::ursa_countsConstPtr msg) {
     sampleFb.sample = sample_count;
     sampleAs->publishFeedback(sampleFb);
     if (sample_count >= sample_goal) {
-        tf::TransformListener tf_listener;
         tf::StampedTransform transform;
-        if (!tf_listener.waitForTransform(global_frame, msg->header.frame_id,
-                ros::Time::now(), ros::Duration(10))) {
+        int tries = 0;
+        while (!tf_listener->waitForTransform(global_frame, msg->header.frame_id,
+                msg->header.stamp, ros::Duration(10.0))) {
             ROS_ERROR_STREAM(
-                    "Couldn't transform from "<<global_frame<<" to "<< "base_link");
-            sampleAs->setAborted();
-            return;
+                    "Couldn't transform from \""<<global_frame<<"\" to \""<< msg->header.frame_id << "\"");
+            if (tries > 4) {
+                sampleAs->setAborted();
+                return;
+            }
+            tries++;
         }
+
         while (1) {
             try {
-                tf_listener.lookupTransform(global_frame, msg->header.frame_id,
-                        ros::Time(0), transform);
+                tf_listener->lookupTransform(global_frame, msg->header.frame_id,
+                        msg->header.stamp, transform);
                 break;
             } catch (tf::TransformException * ex) {
                 ROS_ERROR("%s", ex->what());
@@ -126,6 +136,7 @@ inline void sampleCB(const ursa_driver::ursa_countsConstPtr msg) {
         temp.x = transform.getOrigin().x();
         temp.y = transform.getOrigin().y();
         temp.counts = sample_sum / (float) sample_count;
+        ROS_INFO_STREAM("Newest Sample: " << temp);
         my_cost->addSample(temp);
         sampleAs->setSucceeded();
     }
