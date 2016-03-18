@@ -1,0 +1,22 @@
+<launch>
+  <node pkg="radbot_src_sim" type="sim_node"
+    name="listener" output="screen">
+
+    <param name="x1" value="1"/>
+    <param name="y1" value="1"/>
+    <param name="rad_strength1" value="100"/>
+
+    <param name="x2" value="2"/>
+    <param name="y2" value="2"/>
+    <param name="rad_strength2" value="200"/>
+
+    <param name="x3" value="3"/>
+    <param name="y3" value="3"/>
+    <param name="rad_strength3" value="300"/>
+
+    <param name="x4" value="4"/>
+    <param name="y4" value="4"/>
+    <param name="rad_strength4" value="400"/>
+
+  </node>
+</launch>
