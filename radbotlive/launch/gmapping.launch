@@ -1,9 +1,9 @@
 <launch>
 
   <!--- Run gmapping -->
-  <include file="$(find radbotlive)/launch/nav_outdoor/gmapping.launch" />
+  <include file="$(find radbotlive)/launch/nav/gmapping.launch" />
 
   <!--- Run Move Base -->
-  <include file="$(find radbotlive)/launch/nav_outdoor/move_base.launch" />
+  <include file="$(find radbotlive)/launch/nav/move_base.launch" />
 
 </launch>
