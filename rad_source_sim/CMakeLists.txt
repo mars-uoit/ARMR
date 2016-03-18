@@ -1,21 +1,18 @@
 cmake_minimum_required(VERSION 2.8.3)
-project(radbot_processor)
+project(rad_source_sim)
 
 ## Find catkin macros and libraries
 ## if COMPONENTS list like find_package(catkin REQUIRED COMPONENTS xyz)
 ## is used, also find other catkin packages
 find_package(catkin REQUIRED COMPONENTS
   roscpp
-  actionlib
-  actionlib_msgs
-  std_msgs
-  message_generation
+  rospy
   tf
   ursa_driver
 )
 
 ## System dependencies are found with CMake's conventions
-find_package(Boost REQUIRED COMPONENTS system random)
+# find_package(Boost REQUIRED COMPONENTS system)
 
 
 ## Uncomment this if the package has a setup.py. This macro ensures
@@ -32,10 +29,10 @@ find_package(Boost REQUIRED COMPONENTS system random)
 ## * Let MSG_DEP_SET be the set of packages whose message types you use in
 ##   your messages/services/actions (e.g. std_msgs, actionlib_msgs, ...).
 ## * In the file package.xml:
+##   * add a build_depend tag for "message_generation"
 ##   * add a build_depend and a run_depend tag for each package in MSG_DEP_SET
-##   * If MSG_DEP_SET isn't empty the following dependencies might have been
-##     pulled in transitively but can be declared for certainty nonetheless:
-##     * add a build_depend tag for "message_generation"
+##   * If MSG_DEP_SET isn't empty the following dependency has been pulled in
+##     but can be declared for certainty nonetheless:
 ##     * add a run_depend tag for "message_runtime"
 ## * In this file (CMakeLists.txt):
 ##   * add "message_generation" and every package in MSG_DEP_SET to
@@ -62,18 +59,37 @@ find_package(Boost REQUIRED COMPONENTS system random)
 # )
 
 ## Generate actions in the 'action' folder
- add_action_files(
-   FILES
-   sample.action
-   pso.action
- )
+# add_action_files(
+#   FILES
+#   Action1.action
+#   Action2.action
+# )
 
 ## Generate added messages and services with any dependencies listed here
-generate_messages(
-  DEPENDENCIES
-  actionlib_msgs
-  std_msgs
-)
+# generate_messages(
+#   DEPENDENCIES
+#   visualization_msgs
+# )
+
+################################################
+## Declare ROS dynamic reconfigure parameters ##
+################################################
+
+## To declare and build dynamic reconfigure parameters within this
+## package, follow these steps:
+## * In the file package.xml:
+##   * add a build_depend and a run_depend tag for "dynamic_reconfigure"
+## * In this file (CMakeLists.txt):
+##   * add "dynamic_reconfigure" to
+##     find_package(catkin REQUIRED COMPONENTS ...)
+##   * uncomment the "generate_dynamic_reconfigure_options" section below
+##     and list every .cfg file to be processed
+
+## Generate dynamic reconfigure parameters in the 'cfg' folder
+# generate_dynamic_reconfigure_options(
+#   cfg/DynReconf1.cfg
+#   cfg/DynReconf2.cfg
+# )
 
 ###################################
 ## catkin specific configuration ##
@@ -85,9 +101,9 @@ generate_messages(
 ## CATKIN_DEPENDS: catkin_packages dependent projects also need
 ## DEPENDS: system dependencies of this project that dependent projects also need
 catkin_package(
-  INCLUDE_DIRS include
-#  LIBRARIES radbot_processor
-  CATKIN_DEPENDS roscpp actionlib actionlib_msgs std_msgs
+#  INCLUDE_DIRS include
+#  LIBRARIES my_code
+   CATKIN_DEPENDS roscpp ursa_driver
 #  DEPENDS system_lib
 )
 
@@ -99,29 +115,30 @@ catkin_package(
 ## Your package locations should be listed before other locations
 # include_directories(include)
 include_directories(
-  include
-  ${Boost_INCLUDE_DIRS}
   ${catkin_INCLUDE_DIRS}
 )
 
-## Declare a cpp library
-add_library(radbot_processor
-  src/pso.cc
-)
+## Declare a C++ library
+# add_library(my_code
+#   src/${PROJECT_NAME}/my_code.cpp
+# )
 
-## Declare a cpp executable
-add_executable(radbot_processor_node src/main.cc)
+## Add cmake target dependencies of the library
+## as an example, code may need to be generated before libraries
+## either from message generation or dynamic reconfigure
+# add_dependencies(my_code ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
 
-## Add cmake target dependencies of the executable/library
-## as an example, message headers may need to be generated before nodes
-  add_dependencies(radbot_processor_node radbot_processor_generate_messages_cpp)
-  add_dependencies(radbot_processor_node ${catkin_EXPORTED_TARGETS})
+## Declare a C++ executable
+# add_executable(my_code_node src/my_code_node.cpp)
+
+## Add cmake target dependencies of the executable
+## same as for the library above
+# add_dependencies(my_code_node ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
 
 ## Specify libraries to link a library or executable target against
-target_link_libraries(radbot_processor_node
-  radbot_processor
-  ${catkin_LIBRARIES}
-)
+# target_link_libraries(my_code_node
+#   ${catkin_LIBRARIES}
+# )
 
 #############
 ## Install ##
@@ -138,7 +155,7 @@ target_link_libraries(radbot_processor_node
 # )
 
 ## Mark executables and/or libraries for installation
-# install(TARGETS radbot_processor radbot_processor_node
+# install(TARGETS my_code my_code_node
 #   ARCHIVE DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
 #   LIBRARY DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
 #   RUNTIME DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
@@ -152,21 +169,24 @@ target_link_libraries(radbot_processor_node
 # )
 
 ## Mark other files for installation (e.g. launch and bag files, etc.)
- install(FILES
-   data.csv
-   datawval.csv
-   DESTINATION ${CATKIN_DEVEL_PREFIX}/${CATKIN_PACKAGE_BIN_DESTINATION}
- )
+# install(FILES
+#   # myfile1
+#   # myfile2
+#   DESTINATION ${CATKIN_PACKAGE_SHARE_DESTINATION}
+# )
 
 #############
 ## Testing ##
 #############
 
 ## Add gtest based cpp test target and link libraries
-# catkin_add_gtest(${PROJECT_NAME}-test test/test_radbot_processor.cpp)
+# catkin_add_gtest(${PROJECT_NAME}-test test/test_my_code.cpp)
 # if(TARGET ${PROJECT_NAME}-test)
 #   target_link_libraries(${PROJECT_NAME}-test ${PROJECT_NAME})
 # endif()
 
 ## Add folders to be run by python nosetests
 # catkin_add_nosetests(test)
+
+add_executable(rad_source_simulator src/rad_source_simulator.cpp)
+target_link_libraries(rad_source_simulator ${catkin_LIBRARIES})
