@@ -157,11 +157,12 @@ void psoExecuteCB(const radbot_processor::psoGoalConstPtr &goal) {
     vector<sample> temp(my_cost->getObs());
     minimax(temp, &max_val, &min_val);
     my_pso->setCostFn(*my_cost);
-    my_pso->setParticles(goal->particles);
+    //my_pso->setParticles(goal->particles); //doesnt work yet
     my_pso->setSources(goal->numSrc);
     my_pso->setBounds(max_val, min_val);
 
     radbot_processor::psoResult res;
+    ROS_WARN("PSO: About to Run");
     res.params = my_pso->run();
     res.cost = my_pso->getGMin();
     psoAs->setSucceeded(res);

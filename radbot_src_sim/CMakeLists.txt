@@ -128,14 +128,14 @@ include_directories(
 # add_dependencies(my_code ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
 
 ## Declare a C++ executable
- add_executable(sim_node src/rad_source_simulator.cpp)
+ add_executable(radbot_src_sim_node src/rad_source_simulator.cpp)
 
 ## Add cmake target dependencies of the executable
 ## same as for the library above
 # add_dependencies(my_code_node ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
 
 ## Specify libraries to link a library or executable target against
- target_link_libraries(sim_node
+ target_link_libraries(radbot_src_sim_node
    ${catkin_LIBRARIES}
  )
 
@@ -186,6 +186,3 @@ include_directories(
 
 ## Add folders to be run by python nosetests
 # catkin_add_nosetests(test)
-
-add_executable(rad_source_simulator src/rad_source_simulator.cpp)
-target_link_libraries(rad_source_simulator ${catkin_LIBRARIES})

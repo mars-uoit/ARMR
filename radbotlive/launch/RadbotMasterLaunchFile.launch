@@ -8,5 +8,35 @@
     <arg name="front_laser" value="true"/>
   </include>
   <include file="$(find radbot_viz)/launch/view_radbot.launch"/>
+  <node machine="c1" pkg="radbot_control" type="radbot_control_node" name="radbot_control_node" output="screen">
+    <param name="num_particles" type="int" value="5000"/>
+    <param name="num_samples" type="int" value="10"/>
+  </node>
+  <node machine="c1" pkg="radbot_processor" type="radbot_processor_node" name="radbot_processor_node" output="screen">
+    <param name="global_frame" type="string" value="odom"/>
+    <param name="topic" type="string" value="/counts"/>
+  </node> 
+  <node pkg="radbot_src_sim" type="radbot_src_sim_node"
+    name="radbot_src_sim_node" output="screen" if="$(arg sim)">
+
+    <param name="global_frame" value="odom"/>
+
+    <param name="x1" value="3"/>
+    <param name="y1" value="-2"/>
+    <param name="rad_strength1" value="50000"/>
+
+    <param name="x2" value="0"/>
+    <param name="y2" value="0"/>
+    <param name="rad_strength2" value="0"/>
+
+    <param name="x3" value="0"/>
+    <param name="y3" value="0"/>
+    <param name="rad_strength3" value="0"/>
+
+    <param name="x4" value="0"/>
+    <param name="y4" value="0"/>
+    <param name="rad_strength4" value="0"/>
+
+  </node>
 </launch>
 

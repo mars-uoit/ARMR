@@ -4,7 +4,7 @@
 
   <include file="$(find radbotlive)/launch/$(optenv ROBOT jackal).machine"/>
 
-  <node machine="c2" pkg="gmapping" type="slam_gmapping" name="slam_gmapping" output="screen">
+  <node machine="c2" pkg="gmapping" type="slam_gmapping" name="slam_gmapping">
 
     <param name="odom_frame" value="odom"/>
     <param name="base_frame" value="base_link"/>
