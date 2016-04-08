@@ -14,6 +14,7 @@ using namespace std;
 #include <ros/ros.h>
 #include <tf/transform_listener.h>
 #include "ursa_driver/ursa_counts.h"
+#include <std_srvs/Empty.h>
 #include <actionlib/server/simple_action_server.h>
 #include "radbot_processor/sampleAction.h"
 #include "radbot_processor/psoAction.h"
@@ -43,6 +44,10 @@ void sampleCB(const ursa_driver::ursa_countsConstPtr msg);
 actionlib::SimpleActionServer<radbot_processor::psoAction> * psoAs;
 void psoExecuteCB(const radbot_processor::psoGoalConstPtr &goal);
 
+//clearSamples variables
+bool clearSamplesCB(std_srvs::Empty::Request& request,
+                    std_srvs::Empty::Response& response);
+
 ifstream infile;
 costfn * my_cost;
 pso * my_pso;
@@ -69,8 +74,11 @@ int main(int argc, char **argv) {
     sampleAs->registerPreemptCallback(&samplePreemptCB);
     sample_sub = nh.subscribe(rad_topic, 1, &sampleCB);
 
-    psoAs = new actionlib::SimpleActionServer<radbot_processor::psoAction>(nh,
-            "process_pso", &psoExecuteCB, false);
+    psoAs = new actionlib::SimpleActionServer<radbot_processor::psoAction>(
+            nh, "process_pso", &psoExecuteCB, false);
+
+    ros::ServiceServer clrSamplesSrv = nh.advertiseService("clear_samples",
+                                                           clearSamplesCB);
 
     my_pso = new pso(*my_cost, min_val, max_val, 100, 10000, 2);
 
@@ -83,7 +91,8 @@ int main(int argc, char **argv) {
     std::ostream_iterator<double> out_it(std::cout, ", ");
     //clock_t t0 = clock(), t1;
     for (vector<sample>::iterator i = measurements.begin() + 11;
-            i != measurements.end(); i++) {
+            i != measurements.end(); i++)
+    {
         my_cost->addSample(*i);
         my_pso.setCostFn(*my_cost);
         result = my_pso.run();
@@ -111,8 +120,10 @@ inline void sampleCB(const ursa_driver::ursa_countsConstPtr msg) {
     if (sample_count >= sample_goal) {
         tf::StampedTransform transform;
         int tries = 0;
-        while (!tf_listener->waitForTransform(global_frame, msg->header.frame_id,
-                msg->header.stamp, ros::Duration(10.0))) {
+        while (!tf_listener->waitForTransform(global_frame,
+                                              msg->header.frame_id,
+                                              msg->header.stamp,
+                                              ros::Duration(10.0))) {
             ROS_ERROR_STREAM(
                     "Couldn't transform from \""<<global_frame<<"\" to \""<< msg->header.frame_id << "\"");
             if (tries > 4) {
@@ -125,9 +136,10 @@ inline void sampleCB(const ursa_driver::ursa_countsConstPtr msg) {
         while (1) {
             try {
                 tf_listener->lookupTransform(global_frame, msg->header.frame_id,
-                        msg->header.stamp, transform);
+                                             msg->header.stamp, transform);
                 break;
-            } catch (tf::TransformException * ex) {
+            }
+            catch (tf::TransformException * ex) {
                 ROS_ERROR("%s", ex->what());
                 ros::Duration(1.0).sleep();
             }
@@ -168,10 +180,17 @@ void psoExecuteCB(const radbot_processor::psoGoalConstPtr &goal) {
     psoAs->setSucceeded(res);
 }
 
+bool clearSamplesCB(std_srvs::Empty::Request& request,
+                    std_srvs::Empty::Response& response) {
+    my_cost->clearAll();
+    ROS_INFO("PSO Samples Reset");
+}
+
 inline void openFile() {
     try {
         infile.open("datawval.csv", ifstream::in);
-    } catch (ifstream::failure * e) {
+    }
+    catch (ifstream::failure * e) {
         ROS_ERROR("Exception opening/reading/closing file");
     }
     if (infile.is_open()) {
@@ -200,14 +219,16 @@ inline void openFile() {
                 reading.counts = atof(num.c_str());
                 ROS_DEBUG_STREAM(
                         "x val: " << reading.x << " y val: " << reading.y << " counts: " << reading.counts);
-            } catch (ifstream::failure * e) {
+            }
+            catch (ifstream::failure * e) {
                 ROS_ERROR_STREAM(
                         "Exception opening/reading/closing file\n" << e->what());
             }
             measurements.push_back(reading);
         }
         infile.close();
-    } else {
+    }
+    else {
         ROS_ERROR("Error opening file");
     }
     ROS_INFO_STREAM("Size of point list:" << measurements.size());

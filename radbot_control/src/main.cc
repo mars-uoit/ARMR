@@ -100,7 +100,7 @@ void runPso(){
     goal.numSrc = num_src;
     goal.particles = particles;
     psoAc->sendGoal(goal);
-    psoAc->waitForResult();
+    psoAc->waitForResult();  //comment below line to not hang while running
     radbot_processor::psoResult state = * psoAc->getResult();
     ROS_WARN_STREAM("Control: Pso Results: " << state);
 }

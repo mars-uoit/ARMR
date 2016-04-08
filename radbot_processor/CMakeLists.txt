@@ -9,6 +9,7 @@ find_package(catkin REQUIRED COMPONENTS
   actionlib
   actionlib_msgs
   std_msgs
+  std_srvs
   message_generation
   tf
   ursa_driver
@@ -87,7 +88,7 @@ generate_messages(
 catkin_package(
   INCLUDE_DIRS include
 #  LIBRARIES radbot_processor
-  CATKIN_DEPENDS ursa_driver actionlib actionlib_msgs std_msgs
+  CATKIN_DEPENDS ursa_driver actionlib actionlib_msgs std_msgs std_srvs
 #  DEPENDS system_lib
 )
 

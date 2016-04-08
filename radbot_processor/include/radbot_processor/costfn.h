@@ -48,6 +48,9 @@ public:
     inline void addSample(sample samp) {
         obs_.push_back(samp);
     }
+    inline void clearAll() {
+        obs_.clear();
+    }
     inline std::vector<sample> getObs() {
         return obs_;
     }
