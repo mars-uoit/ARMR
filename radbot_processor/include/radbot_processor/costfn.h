@@ -13,7 +13,8 @@
 #include <math.h>
 #include <vector>
 
-class costfn {
+class costfn
+{
 public:
     inline costfn(std::vector<sample> readings) :
             obs_(readings) {

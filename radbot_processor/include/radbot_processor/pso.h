@@ -18,11 +18,12 @@
 #include <boost/random/uniform_real_distribution.hpp>
 #include "ros/ros.h"
 
-class pso {
+class pso
+{
 
 public:
     pso(const costfn& cost_fn, sample mins, sample maxs, unsigned int particles,
-            unsigned int iter, unsigned int sources);
+        unsigned int iter, unsigned int sources);
     ~pso();
     std::vector<double>
     run();
@@ -85,7 +86,8 @@ private:
     }
 };
 
-class sortClass {
+class sortClass
+{
 public:
     sortClass(std::vector<double> a) {
         vec = a;

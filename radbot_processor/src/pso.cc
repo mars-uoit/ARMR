@@ -7,7 +7,7 @@
 #include "radbot_processor/pso.h"
 
 pso::pso(const costfn& cost_fn, sample mins, sample maxs,
-        unsigned int particles, unsigned int iter, unsigned int sources) :
+         unsigned int particles, unsigned int iter, unsigned int sources) :
         cost_(cost_fn), min_(mins), max_(maxs), n_particles_(particles), n_iter_(
                 iter), sources_(sources), gmin_(100000000), stop_top_(10) {
     n_vars_ = 3 * sources_;
@@ -119,8 +119,8 @@ std::vector<double> pso::run() {
             double tmin = cost_(GET_ROW(j, particles_));
             if (tmin < pmin_[j]) {
                 std::copy(particles_.begin() + ndx(j, 0),
-                        particles_.begin() + ndx(j + 1, 0),
-                        pbest_.begin() + ndx(j, 0)); //pbest(j,:) = particles(j,:);
+                          particles_.begin() + ndx(j + 1, 0),
+                          pbest_.begin() + ndx(j, 0)); //pbest(j,:) = particles(j,:);
                 pmin_[j] = tmin;
                 if (pmin_[j] < gmin_) {
                     gmin_ = pmin_[j];
@@ -134,7 +134,7 @@ std::vector<double> pso::run() {
             }
             sortClass sortFn(pmin_);
             std::partial_sort(q.begin(), q.begin() + stop_top_, q.end(),
-                    sortFn);
+                              sortFn);
 
             for (std::vector<std::size_t>::iterator p = q.begin();
                     p != (q.begin() + stop_top_); p++) {

@@ -125,7 +125,8 @@ inline void sampleCB(const ursa_driver::ursa_countsConstPtr msg) {
                                               msg->header.stamp,
                                               ros::Duration(10.0))) {
             ROS_ERROR_STREAM(
-                    "Couldn't transform from \""<<global_frame<<"\" to \""<< msg->header.frame_id << "\"");
+                    "Couldn't transform from \"" << global_frame << "\" to \""
+                            << msg->header.frame_id << "\"");
             if (tries > 4) {
                 sampleAs->setAborted();
                 return;
@@ -218,11 +219,13 @@ inline void openFile() {
                 getline(ss, num, ',');
                 reading.counts = atof(num.c_str());
                 ROS_DEBUG_STREAM(
-                        "x val: " << reading.x << " y val: " << reading.y << " counts: " << reading.counts);
+                        "x val: " << reading.x << " y val: " << reading.y
+                                << " counts: " << reading.counts);
             }
             catch (ifstream::failure * e) {
                 ROS_ERROR_STREAM(
-                        "Exception opening/reading/closing file\n" << e->what());
+                        "Exception opening/reading/closing file\n"
+                                << e->what());
             }
             measurements.push_back(reading);
         }

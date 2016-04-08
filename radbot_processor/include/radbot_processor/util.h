@@ -14,7 +14,8 @@
 
 using namespace std;
 
-typedef struct sample {
+typedef struct sample
+{
     double x;
     double y;
     double counts;
@@ -57,8 +58,7 @@ inline void minimax(vector<sample> &measurements, sample * max, sample * min) {
 
     min->counts = 0;
     max->counts = 10000000;
-    ROS_INFO_STREAM(
-            "Max Vals:" << *max << endl << "Min Vals:" << *min << endl);
+    ROS_INFO_STREAM("Max Vals:" << *max << endl << "Min Vals:" << *min << endl);
 }
 
 #endif /* INCLUDE_RADBOT_PROCESSOR_UTIL_H_ */
