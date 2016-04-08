@@ -1,9 +1,7 @@
 <launch>
-
   <!--- Run gmapping -->
   <include file="$(find radbotlive)/launch/nav/gmapping.launch" />
 
   <!--- Run Move Base -->
   <include file="$(find radbotlive)/launch/nav/move_base.launch" />
-
 </launch>

@@ -13,16 +13,16 @@
     <param name="num_samples" type="int" value="10"/>
   </node>
   <node machine="c1" pkg="radbot_processor" type="radbot_processor_node" name="radbot_processor_node" output="screen">
-    <param name="global_frame" type="string" value="odom"/>
+    <param name="global_frame" type="string" value="map"/>
     <param name="topic" type="string" value="/counts"/>
   </node> 
   <node pkg="radbot_src_sim" type="radbot_src_sim_node"
-    name="radbot_src_sim_node" output="screen" if="$(arg sim)">
+    name="radbot_src_sim_node" output="screen">
 
-    <param name="global_frame" value="odom"/>
+    <param name="global_frame" value="map"/>
 
-    <param name="x1" value="3"/>
-    <param name="y1" value="-2"/>
+    <param name="x1" value="-2"/>
+    <param name="y1" value="2"/>
     <param name="rad_strength1" value="50000"/>
 
     <param name="x2" value="0"/>
