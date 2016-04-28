@@ -1,0 +1,7 @@
+  <launch>
+    <node pkg="radbot_control" type="radbot_control_node" name="radbot_control_node" output="screen">
+      <param name="num_particles" type="int" value="5000"/>
+      <param name="num_samples" type="int" value="10"/>
+      <param name="marker_frame" type="string" value="map"/>
+    </node>
+  </launch>

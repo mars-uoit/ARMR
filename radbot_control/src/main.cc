@@ -1,7 +1,9 @@
 #include <ros/ros.h>
+#include <stdio.h>
 #include <move_base_msgs/MoveBaseAction.h>
 #include <geometry_msgs/Twist.h>
 #include <actionlib/client/simple_action_client.h>
+#include <visualization_msgs/Marker.h>
 #include "radbot_processor/sampleAction.h"
 #include "radbot_processor/psoAction.h"
 #include <std_srvs/Empty.h>
@@ -10,10 +12,12 @@
 
 ros::Subscriber sub;
 ros::Publisher pub;
+ros::Publisher marker_pub;
 bool automode = false;
 int num_src = 1;
 int particles;
 int num_samples;
+std::string frame;
 
 void getSample();
 void moveBaseCB(const move_base_msgs::MoveBaseActionResultConstPtr ptr);
@@ -35,10 +39,14 @@ int main(int argc, char** argv) {
 
     pnh.param("num_particles", particles, 5000);
     pnh.param("num_samples", num_samples, 10);
+    pnh.param<std::string>("marker_frame", frame, "odom");
 
     sub = pnh.subscribe<move_base_msgs::MoveBaseActionResult>(
             "/move_base/result", 10, &moveBaseCB);
     pub = pnh.advertise<geometry_msgs::Twist>("/cmd_vel/maskable", 1);
+    marker_pub = pnh.advertise<visualization_msgs::Marker>(
+            "visualization_marker", 1);
+
     ros::ServiceServer autoService = nh.advertiseService("autosample",
                                                          enableCB);
     ros::ServiceServer psoService = nh.advertiseService("pso_trigger", psoCB);
@@ -107,6 +115,58 @@ void runPso() {
     psoAc->waitForResult();  //comment below line to not hang while running
     radbot_processor::psoResult state = *psoAc->getResult();
     ROS_WARN_STREAM("Control: Pso Results: " << state);
+
+    visualization_msgs::Marker marker;
+    marker.header.frame_id = frame;
+
+    marker.ns = "basic_shapes";
+    marker.type = visualization_msgs::Marker::CYLINDER;
+    marker.action = visualization_msgs::Marker::ADD;
+
+    marker.pose.position.z = 0.125;
+    marker.pose.orientation.x = 0.0;
+    marker.pose.orientation.y = 0.0;
+    marker.pose.orientation.z = 0.0;
+    marker.pose.orientation.w = 1.0;
+    marker.scale.x = .25;
+    marker.scale.y = .25;
+    marker.scale.z = .25;
+    marker.color.r = 1.0f;
+    marker.color.g = 0.0f;
+    marker.color.b = 0.0f;
+    marker.color.a = 1.0;
+    marker.lifetime = ros::Duration(3600);
+    //text
+    visualization_msgs::Marker marker_text;
+    marker_text.header.frame_id = frame;
+    marker_text.ns = "basic_text";
+    marker_text.frame_locked = true;
+    marker_text.type = visualization_msgs::Marker::TEXT_VIEW_FACING;
+    marker_text.action = visualization_msgs::Marker::ADD;
+    marker_text.pose.position.z = .3;
+    marker_text.scale.x = .2;
+    marker_text.scale.y = .2;
+    marker_text.scale.z = .2;
+    marker_text.color.r = 1.0f;
+    marker_text.color.g = 1.0f;
+    marker_text.color.b = 1.0f;
+    marker_text.color.a = 1.0;
+    marker_text.lifetime = ros::Duration(3600);
+    for (int i = 0; i < state.params.size() / 3; i++) {
+        marker.id = i;
+        marker.header.stamp = ros::Time::now();
+        marker.pose.position.x = state.params[0 + i * 3];
+        marker.pose.position.y = state.params[1 + i * 3];
+        marker_pub.publish(marker);
+        marker_text.id = i;
+        marker_text.header.stamp = ros::Time::now();
+        marker_text.pose.position.x = state.params[0 + i * 3];
+        marker_text.pose.position.y = state.params[1 + i * 3];
+        char buff[50];
+        sprintf(buff, "Source #%d, CPS: %d", i+1, (int)state.params[2 + i * 3]);
+        marker_text.text = buff;
+        marker_pub.publish(marker_text);
+    }
 }
 
 bool enableCB(radbot_control::Autosample::Request &req,
