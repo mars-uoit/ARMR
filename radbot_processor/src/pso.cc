@@ -12,28 +12,7 @@ pso::pso(const costfn& cost_fn, sample mins, sample maxs,
                 iter), sources_(sources), gmin_(100000000), stop_top_(10) {
     n_vars_ = 3 * sources_;
     rng_.seed(time(NULL));
-
-    neigh_.assign(n_particles_ * 4, -1);
-
-    //Find neighbors
-    int dim = floor(pow(n_particles_, .5));
-    bool one_more = (n_particles_ % dim) > 0;
-    for (int i = 0; i < n_particles_; i++) {
-        int r = i / dim;
-        int c = i % dim;
-        if (r > 0)
-            neigh_[ndx(i, 0, 4)] = ndx(r - 1, c, dim);
-        if (c > 0)
-            neigh_[ndx(i, 1, 4)] = ndx(r, c - 1, dim);
-        if ((r + 1) < (dim + one_more)) {
-            if (ndx(r + 1, c, dim) < n_particles_)
-                neigh_[ndx(i, 2, 4)] = ndx(r + 1, c, dim);
-        }
-        if ((c + 1) < dim) {
-            if (ndx(r, c + 1, dim) < n_particles_)
-                neigh_[ndx(i, 3, 4)] = ndx(r, c + 1, dim);
-        }
-    }
+    setParticles(n_particles_);
     gbest_.assign(n_vars_, 0);
 }
 pso::~pso() {
@@ -146,14 +125,15 @@ std::vector<double> pso::run() {
                 if (result > kStopVal)
                     break;
                 if (p == (q.begin() + stop_top_ - 1)) { //time to stop
-                    ROS_INFO_STREAM("PSO: cost: " << gmin_ << " iter: " << i);
+                    ROS_INFO_STREAM(
+                            "PSO: {Stop condition} cost: " << gmin_ << " iter: " << i);
                     return gbest_;
                 }
             }
         }
         ROS_DEBUG("PSO: iter: %i", i);
     }
-    ROS_INFO_STREAM("PSDO: cost: " << gmin_);
+    ROS_INFO_STREAM("PSO: {Max iter} cost: " << gmin_);
     return gbest_;
 }
 

@@ -149,7 +149,7 @@ inline void sampleCB(const ursa_driver::ursa_countsConstPtr msg) {
         temp.x = transform.getOrigin().x();
         temp.y = transform.getOrigin().y();
         temp.counts = sample_sum / (float) sample_count;
-        ROS_INFO_STREAM("Newest Sample: " << temp);
+        ROS_INFO_STREAM("PSO: Newest Sample: " << temp);
         my_cost->addSample(temp);
         sampleAs->setSucceeded();
     }
@@ -170,7 +170,7 @@ void psoExecuteCB(const radbot_processor::psoGoalConstPtr &goal) {
     vector<sample> temp(my_cost->getObs());
     minimax(temp, &max_val, &min_val);
     my_pso->setCostFn(*my_cost);
-    //my_pso->setParticles(goal->particles); //doesnt work yet
+    my_pso->setParticles(goal->particles);
     my_pso->setSources(goal->numSrc);
     my_pso->setBounds(max_val, min_val);
 

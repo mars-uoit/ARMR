@@ -45,6 +45,28 @@ public:
     void setParticles(unsigned int particles) {
         n_particles_ = particles;
         stop_top_ = 0.1 * particles;
+        neigh_.assign(n_particles_ * 4, -1);
+
+        //Find neighbors
+        int dim = floor(pow(n_particles_, .5));
+        bool one_more = (n_particles_ % dim) > 0;
+        for (int i = 0; i < n_particles_; i++) {
+            int r = i / dim;
+            int c = i % dim;
+            if (r > 0)
+                neigh_[ndx(i, 0, 4)] = ndx(r - 1, c, dim);
+            if (c > 0)
+                neigh_[ndx(i, 1, 4)] = ndx(r, c - 1, dim);
+            if ((r + 1) < (dim + one_more)) {
+                if (ndx(r + 1, c, dim) < n_particles_)
+                    neigh_[ndx(i, 2, 4)] = ndx(r + 1, c, dim);
+            }
+            if ((c + 1) < dim) {
+                if (ndx(r, c + 1, dim) < n_particles_)
+                    neigh_[ndx(i, 3, 4)] = ndx(r, c + 1, dim);
+            }
+        }
+        ROS_INFO_STREAM("PSO: Changed Particles.");
     }
     double getGMin() {
         return gmin_;
