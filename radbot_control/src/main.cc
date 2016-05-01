@@ -186,6 +186,9 @@ bool numSrcCB(radbot_control::Numsrc::Request &req,
               radbot_control::Numsrc::Response &res) {
     ROS_INFO_STREAM("Control: num_sources srv called");
     num_src = req.sources;
+    visualization_msgs::Marker marker;
+    marker.action = 3; //delete all
+    marker_pub.publish(marker);
     return true;
 }
 
