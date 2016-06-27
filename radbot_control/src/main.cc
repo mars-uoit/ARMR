@@ -9,6 +9,11 @@
 #include <std_srvs/Empty.h>
 #include "radbot_control/Autosample.h"
 #include "radbot_control/Numsrc.h"
+//costmap
+#include <tf/transform_listener.h>
+#include <costmap_2d/costmap_2d_ros.h>
+#include <costmap_2d/costmap_2d.h>
+
 
 ros::Subscriber sub;
 ros::Publisher pub;
@@ -18,6 +23,9 @@ int num_src = 1;
 int particles;
 int num_samples;
 std::string frame;
+//cost map for radiation measurements
+//boost::shared_ptr<costmap_2d::Costmap2DROS> rad_costmap_ros;
+// tf::TransformListener tf_listener;
 
 void getSample();
 void moveBaseCB(const move_base_msgs::MoveBaseActionResultConstPtr ptr);
@@ -31,6 +39,9 @@ bool numSrcCB(radbot_control::Numsrc::Request &req,
 
 actionlib::SimpleActionClient<radbot_processor::sampleAction> * sampler;
 actionlib::SimpleActionClient<radbot_processor::psoAction> * psoAc;
+
+
+
 
 int main(int argc, char** argv) {
     ros::init(argc, argv, "radbot_control");
@@ -46,6 +57,9 @@ int main(int argc, char** argv) {
     pub = pnh.advertise<geometry_msgs::Twist>("/cmd_vel/maskable", 1);
     marker_pub = pnh.advertise<visualization_msgs::Marker>(
             "visualization_marker", 1);
+    //costmap
+    tf::TransformListener tf_listener;
+    boost::shared_ptr<costmap_2d::Costmap2DROS> rad_costmap_ros = boost::shared_ptr<costmap_2d::Costmap2DROS>(new costmap_2d::Costmap2DROS("rad_costmap", tf_listener));
 
     ros::ServiceServer autoService = nh.advertiseService("autosample",
                                                          enableCB);
@@ -61,6 +75,8 @@ int main(int argc, char** argv) {
             "process_pso", true);
     psoAc->waitForServer();
     sampler->waitForServer();
+    
+    rad_costmap_ros->resetLayers();
 
     ROS_INFO("Control running");
     ros::Rate rate(10.0);

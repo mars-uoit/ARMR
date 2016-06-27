@@ -14,10 +14,11 @@ find_package(catkin REQUIRED COMPONENTS
   move_base_msgs
   geometry_msgs
   radbot_processor
+  costmap_2d
 )
 
 ## System dependencies are found with CMake's conventions
-find_package(Boost REQUIRED COMPONENTS system)
+find_package(Boost REQUIRED)
 
 
 ## Uncomment this if the package has a setup.py. This macro ensures
@@ -87,8 +88,8 @@ generate_messages(
 catkin_package(
 #  INCLUDE_DIRS include
 #  LIBRARIES radbot_control
-  CATKIN_DEPENDS radbot_processor move_base_msgs geometry_msgs actionlib actionlib_msgs std_msgs std_srvs
-#  DEPENDS system_lib
+  CATKIN_DEPENDS radbot_processor move_base_msgs geometry_msgs actionlib actionlib_msgs std_msgs std_srvs costmap_2d
+  DEPENDS Boost
 )
 
 ###########
@@ -101,6 +102,7 @@ catkin_package(
 include_directories(
   include
   ${catkin_INCLUDE_DIRS}
+  ${Boost_INCLUDE_DIRS}
 )
 
 ## Declare a cpp library
