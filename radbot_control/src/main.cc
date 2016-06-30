@@ -59,7 +59,9 @@ int main(int argc, char** argv) {
             "visualization_marker", 1);
     //costmap
     tf::TransformListener tf_listener;
-    boost::shared_ptr<costmap_2d::Costmap2DROS> rad_costmap_ros = boost::shared_ptr<costmap_2d::Costmap2DROS>(new costmap_2d::Costmap2DROS("rad_costmap", tf_listener));
+    boost::shared_ptr<costmap_2d::Costmap2DROS> rad_costmap_ros = 
+        boost::shared_ptr<costmap_2d::Costmap2DROS>(new 
+        costmap_2d::Costmap2DROS("rad_costmap", tf_listener));
 
     ros::ServiceServer autoService = nh.advertiseService("autosample",
                                                          enableCB);

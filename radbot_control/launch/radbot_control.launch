@@ -8,8 +8,8 @@
             robot_radius: 0.10
 
             transform_tolerance: 0.5
-            update_frequency: 5.0
-            publish_frequency: 5.0
+            update_frequency: 1.0
+            publish_frequency: 1.0
 
             #must match incoming static map
             global_frame: map
@@ -22,7 +22,8 @@
             plugins:
 
                 - {name: static,           type: "costmap_2d::StaticLayer"}
-                #Can disable sensor layer if gmapping is fast enough to update scans
+                - {name: RadLayer,           type: "radbot_control::RadLayer"}
+                
 
             static:
                 #Can pull data from gmapping, map_server or a non-rolling costmap
