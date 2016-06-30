@@ -4,43 +4,14 @@
   <arg name="robot" value="sim" if="$(arg sim)"/>
   <env name="ROBOT" value="$(arg robot)"/>
   <include file="$(find radbotlive)/launch/$(arg robot).machine"/>
-  <env name="JACKAL_LASER_TOPIC" value="/blablascan"/>
   <include file="$(find jackal_gazebo)/launch/jackal_world.launch" if="$(arg sim)">
     <arg name="front_laser" value="true"/>
   </include>
   <include file="$(find radbot_viz)/launch/view_radbot.launch"/>
   <node machine="c1" pkg="radbot_control" type="radbot_control_node" name="radbot_control_node" output="screen">
     <param name="num_particles" type="int" value="100"/>
-    <param name="num_samples" type="int" value="1"/>
+    <param name="num_samples" type="int" value="5"/>
     <param name="marker_frame" type="string" value="map"/>
-      <rosparam ns="rad_costmap" subst_value="true">
-            footprint: [[0.1, 0.0], [0.0, 0.1], [-0.1, 0.0], [0.0, -0.1]]
-            robot_radius: 0.10
-
-            transform_tolerance: 0.5
-            update_frequency: 5.0
-            publish_frequency: 5.0
-
-            #must match incoming static map
-            global_frame: map
-            robot_base_frame: base_link
-            resolution: 0.05
-
-            rolling_window: false
-            track_unknown_space: true
-
-            plugins:
-
-                - {name: static,           type: "costmap_2d::StaticLayer"}
-                #Can disable sensor layer if gmapping is fast enough to update scans
-
-            static:
-                #Can pull data from gmapping, map_server or a non-rolling costmap
-                map_topic: /map
-                # map_topic: move_base/global_costmap/costmap
-                subscribe_to_updates: true
-
-      </rosparam>
   </node>
   <node machine="c1" pkg="radbot_processor" type="radbot_processor_node" name="radbot_processor_node" output="screen">
     <param name="global_frame" type="string" value="map"/>
