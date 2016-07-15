@@ -23,9 +23,6 @@ int num_src = 1;
 int particles;
 int num_samples;
 std::string frame;
-//cost map for radiation measurements
-//boost::shared_ptr<costmap_2d::Costmap2DROS> rad_costmap_ros;
-// tf::TransformListener tf_listener;
 
 void getSample();
 void moveBaseCB(const move_base_msgs::MoveBaseActionResultConstPtr ptr);

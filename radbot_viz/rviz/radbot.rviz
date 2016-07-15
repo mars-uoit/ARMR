@@ -5,10 +5,7 @@ Panels:
     Property Tree Widget:
       Expanded:
         - /Global Options1
-        - /TF1
         - /TF1/Tree1
-        - /LaserScan1
-        - /Map4
       Splitter Ratio: 0.5
     Tree Height: 715
   - Class: rviz/Selection
@@ -190,6 +187,30 @@ Visualization Manager:
       Show Names: true
       Tree:
         map:
+          odom:
+            base_link:
+              chassis_link:
+                fenders_link:
+                  {}
+                front_left_wheel_link:
+                  {}
+                front_right_wheel_link:
+                  {}
+                imu_link:
+                  {}
+                mid_mount:
+                  front_mount:
+                    front_laser_mount:
+                      front_laser:
+                        {}
+                  rear_mount:
+                    {}
+                navsat_link:
+                  {}
+                rear_left_wheel_link:
+                  {}
+                rear_right_wheel_link:
+                  {}
           rad_source1:
             {}
           rad_source2:
@@ -198,30 +219,6 @@ Visualization Manager:
             {}
           rad_source4:
             {}
-        odom:
-          base_link:
-            chassis_link:
-              fenders_link:
-                {}
-              front_left_wheel_link:
-                {}
-              front_right_wheel_link:
-                {}
-              imu_link:
-                {}
-              mid_mount:
-                front_mount:
-                  front_laser_mount:
-                    front_laser:
-                      {}
-                rear_mount:
-                  {}
-              navsat_link:
-                {}
-              rear_left_wheel_link:
-                {}
-              rear_right_wheel_link:
-                {}
       Update Interval: 0
       Value: true
     - Alpha: 1
@@ -257,7 +254,7 @@ Visualization Manager:
     - Alpha: 0.7
       Class: rviz/Map
       Color Scheme: map
-      Draw Behind: false
+      Draw Behind: true
       Enabled: true
       Name: Map
       Topic: /map

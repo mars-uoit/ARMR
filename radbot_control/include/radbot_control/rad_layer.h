@@ -6,6 +6,7 @@
 #include <costmap_2d/GenericPluginConfig.h>
 #include <dynamic_reconfigure/server.h>
 #include "ursa_driver/ursa_counts.h"
+#include <std_srvs/SetBool.h>
 
 namespace radbot_control
 {
@@ -29,15 +30,23 @@ public:
   virtual void reset();
   
 private:
+  bool enableCB(std_srvs::SetBool::Request& request, std_srvs::SetBool::Response& response);
   void reconfigureCB(costmap_2d::GenericPluginConfig &config, uint32_t level);
 
   dynamic_reconfigure::Server<costmap_2d::GenericPluginConfig> *dsrv_;
   
   void countsCB(const ursa_driver::ursa_countsConstPtr counts);
-  void paintCostmap(int x, int y, int cost);
+  void paintCostmap(double x, double y, int cost);
   
   ros::Subscriber counts_sub_;
+  tf::TransformListener tf_listener_;
   int current_cost_;
+  int max_rad_;
+  double shepard_;
+  double min_dist_;
+  tf::Vector3 last_measure_;
+  bool enabled_;
+  ros::ServiceServer enableService_;
 };
 }
 #endif

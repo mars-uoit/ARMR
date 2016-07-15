@@ -39,6 +39,10 @@
                 map_topic: /map
                 # map_topic: move_base/global_costmap/costmap
                 subscribe_to_updates: true
+            RadLayer:
+                max_counts: 50000
+                shepard_power: 2.0
+                measure_dist: 0.5
 
       </rosparam>
   </node>
