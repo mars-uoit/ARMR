@@ -30,7 +30,7 @@ namespace radbot_control
     nh.param<double>("measure_dist", min_dist_, .3);
     
     current_cost_ = 0;
-    counts_sub_ = nh.subscribe("/counts", 1, &RadLayer::countsCB, this);  
+    counts_sub_ = nh.subscribe("/ursa_node/counts", 1, &RadLayer::countsCB, this);  
     enableService_ = nh.advertiseService("heatmap_enable", &RadLayer::enableCB, this);
     
     last_measure_.setZero();
@@ -128,10 +128,10 @@ namespace radbot_control
       return;
 
         //update the whole costmap
-        //*min_x = getOriginX();
-        //*min_y = getOriginY();
-        //*max_x = getSizeInMetersX()+getOriginX();
-        //*max_y = getSizeInMetersY()+getOriginY(); 
+        *min_x = getOriginX();
+        *min_y = getOriginY();
+        *max_x = getSizeInMetersX()+getOriginX();
+        *max_y = getSizeInMetersY()+getOriginY(); 
         
         //ROS_WARN("min x: %f min : %f, max x: %f max y: %f", *min_x, *min_y, *max_x, *max_y);
   }
