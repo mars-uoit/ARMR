@@ -1,4 +1,6 @@
 int32 samples
 ---
+float32 x
+float32 y
 ---
 int32 sample

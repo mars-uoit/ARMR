@@ -31,6 +31,7 @@ string global_frame;
 string rad_topic;
 actionlib::SimpleActionServer<radbot_processor::sampleAction> * sampleAs;
 radbot_processor::sampleFeedback sampleFb;
+radbot_processor::sampleResult sampleRs;
 ros::Subscriber sample_sub;
 unsigned int sample_count;
 unsigned int sample_goal;
@@ -146,12 +147,12 @@ inline void sampleCB(const ursa_driver::ursa_countsConstPtr msg) {
             }
         }
         sample temp;
-        temp.x = transform.getOrigin().x();
-        temp.y = transform.getOrigin().y();
+        temp.x = sampleRs.x = transform.getOrigin().x();
+        temp.y = sampleRs.y = transform.getOrigin().y();
         temp.counts = sample_sum / (float) sample_count;
         ROS_INFO_STREAM("PSO: Newest Sample: " << temp);
         my_cost->addSample(temp);
-        sampleAs->setSucceeded();
+        sampleAs->setSucceeded(sampleRs);
     }
 
 }

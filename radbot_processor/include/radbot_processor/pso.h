@@ -79,7 +79,7 @@ private:
     static const double kC1 = 1.49;
     static const double kC2 = 1.49;
     static const double kW = 0.72;
-    static const double kStopVal = .1;
+    static const double kStopVal = .02;
     int stop_top_;
 
     boost::random::mt19937 rng_;
