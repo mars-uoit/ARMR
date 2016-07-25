@@ -38,7 +38,7 @@ int main(int argc, char** argv){
   ros::init(argc, argv, "rad_source_sim");
   ros::NodeHandle nh("~");
   ros::NodeHandle node("~");
-  ros::Publisher publisher = nh.advertise<ursa_driver::ursa_counts>("/counts", 10);
+  ros::Publisher publisher = nh.advertise<ursa_driver::ursa_counts>("/ursa_node/counts", 10);
 
   tf::TransformBroadcaster br;
   tf::Transform rad_source1;
@@ -135,7 +135,7 @@ int main(int argc, char** argv){
     ursa_driver::ursa_counts temp;
 
     temp.header.stamp = ros::Time::now();
-    temp.header.frame_id = "base_link";
+    temp.header.frame_id = "rad_link";
     temp.counts = total_rad_dose;
     publisher.publish(temp);
 

@@ -46,6 +46,14 @@ int main(int argc, char** argv) {
     pub = pnh.advertise<geometry_msgs::Twist>("/cmd_vel/maskable", 1);
     marker_pub = pnh.advertise<visualization_msgs::Marker>(
             "visualization_marker", 1);
+<<<<<<< HEAD
+=======
+    //costmap
+    tf::TransformListener tf_listener;
+    boost::shared_ptr<costmap_2d::Costmap2DROS> rad_costmap_ros = 
+        boost::shared_ptr<costmap_2d::Costmap2DROS>(new 
+        costmap_2d::Costmap2DROS("rad_costmap", tf_listener));
+>>>>>>> remotes/origin/costmap_test
 
     ros::ServiceServer autoService = nh.advertiseService("autosample",
                                                          enableCB);

@@ -14,6 +14,11 @@ find_package(catkin REQUIRED COMPONENTS
   move_base_msgs
   geometry_msgs
   radbot_processor
+<<<<<<< HEAD
+=======
+  costmap_2d
+  ursa_driver
+>>>>>>> remotes/origin/costmap_test
 )
 
 ## System dependencies are found with CMake's conventions
@@ -85,10 +90,29 @@ generate_messages(
 ## CATKIN_DEPENDS: catkin_packages dependent projects also need
 ## DEPENDS: system dependencies of this project that dependent projects also need
 catkin_package(
+<<<<<<< HEAD
 #  INCLUDE_DIRS include
 #  LIBRARIES radbot_control
   CATKIN_DEPENDS radbot_processor move_base_msgs geometry_msgs actionlib actionlib_msgs std_msgs std_srvs
 #  DEPENDS system_lib
+=======
+  INCLUDE_DIRS
+    include
+  LIBRARIES
+    rad_costmap
+  CATKIN_DEPENDS 
+    radbot_processor
+    move_base_msgs
+    geometry_msgs
+    actionlib
+    actionlib_msgs
+    std_msgs
+    std_srvs
+    costmap_2d
+    ursa_driver
+  DEPENDS
+    Boost
+>>>>>>> remotes/origin/costmap_test
 )
 
 ###########
@@ -104,9 +128,12 @@ include_directories(
 )
 
 ## Declare a cpp library
-#add_library(radbot_control
-#  
-#)
+add_library(rad_costmap
+ plugins/rad_layer.cpp
+ )
+target_link_libraries(rad_costmap ${catkin_LIBRARIES} ${Boost_LIBRARIES} ${PCL_LIBRARIES})
+add_dependencies(rad_costmap ${PROJECT_NAME}_generate_messages_cpp ${catkin_EXPORTED_TARGETS})
+
 
 ## Declare a cpp executable
 add_executable(radbot_control_node src/main.cc)
@@ -128,30 +155,25 @@ target_link_libraries(radbot_control_node
 # all install targets should use catkin DESTINATION variables
 # See http://ros.org/doc/api/catkin/html/adv_user_guide/variables.html
 
-## Mark executable scripts (Python etc.) for installation
-## in contrast to setup.py, you can choose the destination
-# install(PROGRAMS
-#   scripts/my_python_script
-#   DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
-# )
 
-## Mark executables and/or libraries for installation
-# install(TARGETS radbot_control radbot_control_node
-#   ARCHIVE DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
-#   LIBRARY DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
-#   RUNTIME DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
-# )
+install(TARGETS radbot_control_node
+        RUNTIME DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION})
 
-## Mark cpp header files for installation
-# install(DIRECTORY include/${PROJECT_NAME}/
-#   DESTINATION ${CATKIN_PACKAGE_INCLUDE_DESTINATION}
-#   FILES_MATCHING PATTERN "*.h"
-#   PATTERN ".svn" EXCLUDE
-# )
+install(TARGETS rad_costmap
+        ARCHIVE DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
+        LIBRARY DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
+        RUNTIME DESTINATION ${CATKIN_GLOBAL_BIN_DESTINATION})
 
-## Mark other files for installation (e.g. launch and bag files, etc.)
-# install(FILES
-# )
+install(DIRECTORY include/${PROJECT_NAME}/
+        DESTINATION ${CATKIN_PACKAGE_INCLUDE_DESTINATION}
+        PATTERN ".svn" EXCLUDE)
+
+install(DIRECTORY launch/
+        DESTINATION ${CATKIN_PACKAGE_SHARE_DESTINATION}/launch
+        PATTERN ".svn" EXCLUDE)
+
+install(FILES costmap_plugins.xml
+  DESTINATION ${CATKIN_PACKAGE_SHARE_DESTINATION})
 
 #############
 ## Testing ##
