@@ -2,22 +2,31 @@
 #include <stdio.h>
 #include <move_base_msgs/MoveBaseAction.h>
 #include <geometry_msgs/Twist.h>
+#include <geometry_msgs/Point.h>
 #include <actionlib/client/simple_action_client.h>
 #include <visualization_msgs/Marker.h>
+#include <visualization_msgs/MarkerArray.h>
 #include "radbot_processor/sampleAction.h"
 #include "radbot_processor/psoAction.h"
 #include <std_srvs/Empty.h>
 #include "radbot_control/Autosample.h"
 #include "radbot_control/Numsrc.h"
+//costmap
+#include <tf/transform_listener.h>
+#include <costmap_2d/costmap_2d_ros.h>
+#include <costmap_2d/costmap_2d.h>
+
 
 ros::Subscriber sub;
 ros::Publisher pub;
 ros::Publisher marker_pub;
+ros::Publisher marker_text_pub;
 bool automode = false;
 int num_src = 1;
 int particles;
 int num_samples;
 std::string frame;
+visualization_msgs::Marker sample_marker;
 
 void getSample();
 void moveBaseCB(const move_base_msgs::MoveBaseActionResultConstPtr ptr);
@@ -28,6 +37,7 @@ bool enableCB(radbot_control::Autosample::Request &req,
 bool manualCB(std_srvs::Empty::Request &req, std_srvs::Empty::Response &res);
 bool numSrcCB(radbot_control::Numsrc::Request &req,
               radbot_control::Numsrc::Response &res);
+bool sampleMarkerCB(std_srvs::Empty::Request &req, std_srvs::Empty::Response &res);
 
 actionlib::SimpleActionClient<radbot_processor::sampleAction> * sampler;
 actionlib::SimpleActionClient<radbot_processor::psoAction> * psoAc;
@@ -46,6 +56,8 @@ int main(int argc, char** argv) {
     pub = pnh.advertise<geometry_msgs::Twist>("/cmd_vel/maskable", 1);
     marker_pub = pnh.advertise<visualization_msgs::Marker>(
             "visualization_marker", 1);
+    marker_text_pub = pnh.advertise<visualization_msgs::MarkerArray>(
+            "visualization_text", 1);
 
     //costmap
     tf::TransformListener tf_listener;
@@ -60,6 +72,8 @@ int main(int argc, char** argv) {
                                                            manualCB);
     ros::ServiceServer sourcesService = nh.advertiseService("num_sources",
                                                             numSrcCB);
+    ros::ServiceServer sampleMarkerService = nh.advertiseService("reset_sample_markers",
+                                                            sampleMarkerCB);
 
     sampler = new actionlib::SimpleActionClient<radbot_processor::sampleAction>(
             "process_sampler", true);
@@ -68,10 +82,28 @@ int main(int argc, char** argv) {
     psoAc->waitForServer();
     sampler->waitForServer();
 
+    //sample positions
+    sample_marker.header.frame_id = "map";
+
+    sample_marker.ns = "basic_shapes";
+    sample_marker.id = 1;
+    sample_marker.type = visualization_msgs::Marker::SPHERE_LIST;
+    sample_marker.action = visualization_msgs::Marker::ADD;
+
+    sample_marker.pose.orientation.w = 1.0;
+    sample_marker.scale.x = .25;
+    sample_marker.scale.y = .25;
+    sample_marker.color.r = 0.0f;
+    sample_marker.color.g = 1.0f;
+    sample_marker.color.b = 0.0f;
+    sample_marker.color.a = 1.0;
+    sample_marker.lifetime = ros::Duration(3600);
+
+    rad_costmap_ros->resetLayers();
+
     ROS_INFO("Control running");
     ros::Rate rate(10.0);
     while (ros::ok()) {
-        //ROS_WARN("Here");
         ros::spinOnce();
         rate.sleep();
     }
@@ -90,6 +122,7 @@ void moveBaseCB(const move_base_msgs::MoveBaseActionResultConstPtr ptr) {
 void getSample() {
     ROS_INFO("Control: Getting Sample");
     radbot_processor::sampleGoal goal;
+    radbot_processor::sampleResult result;
     goal.samples = num_samples;
     geometry_msgs::Twist msg;
     msg.linear.x = 0;
@@ -103,6 +136,14 @@ void getSample() {
     while (!sampler->getState().isDone()) {
         pub.publish(msg);
     }
+    result = *sampler->getResult();
+    geometry_msgs::Point temp_point;
+    temp_point.x = result.x;
+    temp_point.y = result.y;
+    temp_point.z = 0;
+    sample_marker.points.push_back(temp_point);
+    sample_marker.header.stamp = ros::Time::now();
+    marker_pub.publish(sample_marker);
     ROS_INFO("Control: Finished Getting Sample");
     //runPso();
 }
@@ -126,23 +167,20 @@ void runPso() {
     marker.header.frame_id = frame;
 
     marker.ns = "basic_shapes";
-    marker.type = visualization_msgs::Marker::CYLINDER;
+    marker.id = 0;
+    marker.type = visualization_msgs::Marker::SPHERE_LIST;
     marker.action = visualization_msgs::Marker::ADD;
 
-    marker.pose.position.z = 0.125;
-    marker.pose.orientation.x = 0.0;
-    marker.pose.orientation.y = 0.0;
-    marker.pose.orientation.z = 0.0;
     marker.pose.orientation.w = 1.0;
     marker.scale.x = .25;
     marker.scale.y = .25;
-    marker.scale.z = .25;
     marker.color.r = 1.0f;
     marker.color.g = 0.0f;
     marker.color.b = 0.0f;
     marker.color.a = 1.0;
     marker.lifetime = ros::Duration(3600);
     //text
+    visualization_msgs::MarkerArray marker_text_array;
     visualization_msgs::Marker marker_text;
     marker_text.header.frame_id = frame;
     marker_text.ns = "basic_text";
@@ -159,11 +197,14 @@ void runPso() {
     marker_text.color.a = 1.0;
     marker_text.lifetime = ros::Duration(3600);
     for (int i = 0; i < state.params.size() / 3; i++) {
-        marker.id = i;
-        marker.header.stamp = ros::Time::now();
-        marker.pose.position.x = state.params[0 + i * 3];
-        marker.pose.position.y = state.params[1 + i * 3];
-        marker_pub.publish(marker);
+        geometry_msgs::Point temp_point;
+
+        temp_point.x = state.params[0 + i * 3];
+        temp_point.y = state.params[1 + i * 3];
+        temp_point.z = 0;
+
+        marker.points.push_back(temp_point);
+
         marker_text.id = i;
         marker_text.header.stamp = ros::Time::now();
         marker_text.pose.position.x = state.params[0 + i * 3];
@@ -171,8 +212,11 @@ void runPso() {
         char buff[50];
         sprintf(buff, "Source #%d, CPS: %d", i+1, (int)state.params[2 + i * 3]);
         marker_text.text = buff;
-        marker_pub.publish(marker_text);
+        marker_text_array.markers.push_back(marker_text);
     }
+    marker.header.stamp = ros::Time::now();
+    marker_pub.publish(marker);
+    marker_text_pub.publish(marker_text_array);
 }
 
 bool enableCB(radbot_control::Autosample::Request &req,
@@ -193,8 +237,23 @@ bool numSrcCB(radbot_control::Numsrc::Request &req,
     ROS_INFO_STREAM("Control: num_sources srv called");
     num_src = req.sources;
     visualization_msgs::Marker marker;
-    marker.action = 3; //delete all
+    marker.action = 2; //delete
+    marker.ns = "basic_shapes";
+    marker.id = 0;
     marker_pub.publish(marker);
+    visualization_msgs::MarkerArray marker_array;
+    marker.action = 3; //delete all
+    marker.ns = "basic_text";
+    marker_array.markers.push_back(marker);
+    marker_text_pub.publish(marker_array);
     return true;
+}
+bool sampleMarkerCB(std_srvs::Empty::Request &req, std_srvs::Empty::Response &res) {
+    visualization_msgs::Marker marker;
+    marker.action = 2; //delete
+    marker.ns = "basic_shapes";
+    marker.id = 1;
+    sample_marker.points.clear();
+    marker_pub.publish(marker);
 }
 
