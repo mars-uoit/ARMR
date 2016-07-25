@@ -3,8 +3,6 @@
       <param name="num_particles" type="int" value="100"/>
       <param name="num_samples" type="int" value="1"/>
       <param name="marker_frame" type="string" value="map"/>
-<<<<<<< HEAD
-=======
        <rosparam ns="rad_costmap" subst_value="true">
             footprint: [[0.1, 0.0], [0.0, 0.1], [-0.1, 0.0], [0.0, -0.1]]
             robot_radius: 0.10
@@ -34,6 +32,5 @@
                 subscribe_to_updates: true
 
       </rosparam>
->>>>>>> remotes/origin/costmap_test
     </node>
   </launch>

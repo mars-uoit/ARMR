@@ -12,8 +12,7 @@
     <param name="num_particles" type="int" value="100"/>
     <param name="num_samples" type="int" value="5"/>
     <param name="marker_frame" type="string" value="map"/>
-<<<<<<< HEAD
-=======
+
       <rosparam ns="rad_costmap" subst_value="true">
             footprint: [[0.1, 0.0], [0.0, 0.1], [-0.1, 0.0], [0.0, -0.1]]
             robot_radius: 0.10
@@ -46,7 +45,6 @@
                 measure_dist: 0.5
 
       </rosparam>
->>>>>>> remotes/origin/costmap_test
   </node>
   <node machine="c1" pkg="radbot_processor" type="radbot_processor_node" name="radbot_processor_node" output="screen">
     <param name="global_frame" type="string" value="map"/>

@@ -14,11 +14,8 @@ find_package(catkin REQUIRED COMPONENTS
   move_base_msgs
   geometry_msgs
   radbot_processor
-<<<<<<< HEAD
-=======
   costmap_2d
   ursa_driver
->>>>>>> remotes/origin/costmap_test
 )
 
 ## System dependencies are found with CMake's conventions
