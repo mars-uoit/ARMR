@@ -87,12 +87,6 @@ generate_messages(
 ## CATKIN_DEPENDS: catkin_packages dependent projects also need
 ## DEPENDS: system dependencies of this project that dependent projects also need
 catkin_package(
-<<<<<<< HEAD
-#  INCLUDE_DIRS include
-#  LIBRARIES radbot_control
-  CATKIN_DEPENDS radbot_processor move_base_msgs geometry_msgs actionlib actionlib_msgs std_msgs std_srvs
-#  DEPENDS system_lib
-=======
   INCLUDE_DIRS
     include
   LIBRARIES
@@ -109,7 +103,6 @@ catkin_package(
     ursa_driver
   DEPENDS
     Boost
->>>>>>> remotes/origin/costmap_test
 )
 
 ###########
