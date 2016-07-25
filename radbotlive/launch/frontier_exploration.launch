@@ -3,7 +3,7 @@
     <include file="$(find radbotlive)/launch/$(optenv ROBOT jackal).machine"/>
 
     <!-- Set to your sensor's range -->
-    <arg name="sensor_range" default="1.5"/>
+    <arg name="sensor_range" default="1.0"/> # adjust for sample spacing
 
     <node machine="c1" pkg="frontier_exploration" type="explore_client" name="explore_client" output="screen"/>
 
@@ -15,7 +15,7 @@
         #All standard costmap_2d parameters as in move_base, other than BoundedExploreLayer
         <rosparam ns="explore_costmap" subst_value="true">
             footprint: [[-0.21, -0.165], [-0.21, 0.165], [0.21, 0.165], [0.21, -0.165]]
-            robot_radius: 0.50
+            footprint_padding: 0.1
             
             transform_tolerance: 0.5
             update_frequency: 5.0
@@ -54,7 +54,7 @@
                 laser: {data_type: LaserScan, clearing: true, marking: true, topic: scan, inf_is_valid: true, raytrace_range: $(arg sensor_range), obstacle_range: $(arg sensor_range)}
 
             inflation:
-                inflation_radius: .35
+                inflation_radius: .3 #smaller than costmap otherwise no samples near wall
       </rosparam>
     </node>
 

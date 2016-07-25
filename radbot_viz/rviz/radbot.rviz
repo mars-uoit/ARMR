@@ -29,7 +29,7 @@ Panels:
     Experimental: false
     Name: Time
     SyncMode: 2
-    SyncSource: ""
+    SyncSource: LaserScan
   - Class: radbot_dashboard/Radbot Dashboard
     Map Selection: ""
     Name: Radbot Dashboard
@@ -187,30 +187,6 @@ Visualization Manager:
       Show Names: true
       Tree:
         map:
-          odom:
-            base_link:
-              chassis_link:
-                fenders_link:
-                  {}
-                front_left_wheel_link:
-                  {}
-                front_right_wheel_link:
-                  {}
-                imu_link:
-                  {}
-                mid_mount:
-                  front_mount:
-                    front_laser_mount:
-                      front_laser:
-                        {}
-                  rear_mount:
-                    {}
-                navsat_link:
-                  {}
-                rear_left_wheel_link:
-                  {}
-                rear_right_wheel_link:
-                  {}
           rad_source1:
             {}
           rad_source2:
@@ -219,13 +195,37 @@ Visualization Manager:
             {}
           rad_source4:
             {}
+        odom:
+          base_link:
+            chassis_link:
+              fenders_link:
+                {}
+              front_left_wheel_link:
+                {}
+              front_right_wheel_link:
+                {}
+              imu_link:
+                {}
+              mid_mount:
+                front_mount:
+                  front_laser_mount:
+                    front_laser:
+                      {}
+                rear_mount:
+                  {}
+              navsat_link:
+                {}
+              rear_left_wheel_link:
+                {}
+              rear_right_wheel_link:
+                {}
       Update Interval: 0
       Value: true
     - Alpha: 1
       Autocompute Intensity Bounds: true
       Autocompute Value Bounds:
-        Max Value: 8.40846
-        Min Value: -2.77373
+        Max Value: 14.7508
+        Min Value: 1.87022
         Value: true
       Axis: Y
       Channel Name: intensity
@@ -246,7 +246,7 @@ Visualization Manager:
       Size (Pixels): 3
       Size (m): 0.05
       Style: Flat Squares
-      Topic: /front/scan
+      Topic: /scan
       Unreliable: false
       Use Fixed Frame: true
       Use rainbow: false
@@ -370,7 +370,7 @@ Visualization Manager:
       Marker Topic: /exploration_polygon_marker
       Name: Marker
       Namespaces:
-        {}
+        explore_points: true
       Queue Size: 100
       Value: true
     - Alpha: 0.7
@@ -400,10 +400,19 @@ Visualization Manager:
         {}
       Queue Size: 100
       Value: true
+    - Alpha: 0.7
+      Class: rviz/Map
+      Color Scheme: map
+      Draw Behind: false
+      Enabled: true
+      Name: Map
+      Topic: /explore_server/explore_costmap/costmap
+      Unreliable: false
+      Value: true
   Enabled: true
   Global Options:
     Background Color: 48; 48; 48
-    Fixed Frame: odom
+    Fixed Frame: map
     Frame Rate: 30
   Name: root
   Tools:
@@ -434,11 +443,11 @@ Visualization Manager:
         Value: false
       Name: Current View
       Near Clip Distance: 0.01
-      Scale: 77.0664
+      Scale: 75.9566
       Target Frame: base_link
       Value: TopDownOrtho (rviz)
-      X: 0
-      Y: 0
+      X: -2.59411
+      Y: -2.86111
     Saved:
       - Angle: 4.71239
         Class: rviz/TopDownOrtho
