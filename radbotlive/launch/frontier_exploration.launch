@@ -3,7 +3,7 @@
     <include file="$(find radbotlive)/launch/$(optenv ROBOT jackal).machine"/>
 
     <!-- Set to your sensor's range -->
-    <arg name="sensor_range" default="1.0"/> # adjust for sample spacing
+    <arg name="sensor_range" default="1.3"/> # adjust for sample spacing
 
     <node machine="c1" pkg="frontier_exploration" type="explore_client" name="explore_client" output="screen"/>
 
@@ -39,7 +39,7 @@
 
             static:
                 #Can pull data from gmapping, map_server or a non-rolling costmap            
-                # map_topic: /map
+                #map_topic: /map
                 map_topic: move_base/global_costmap/costmap   
                 subscribe_to_updates: true
 

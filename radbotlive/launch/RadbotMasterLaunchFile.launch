@@ -39,7 +39,7 @@
                 map_topic: move_base/global_costmap/costmap
                 subscribe_to_updates: false
             RadLayer:
-                max_counts: 50000
+                max_counts: 15000
                 shepard_power: 2.0
                 measure_dist: 0.3
 
@@ -73,8 +73,8 @@
     <param name="y4" value="0"/>
     <param name="rad_strength4" value="0"/>
 
-  </node> -->
-    <node machine="c2" pkg="ursa_driver" type="ursa_node" name="ursa_node" respawn="true" output="screen">
+  </node> 
+    <node machine="c2" pkg="ursa_driver" type="ursa_node" name="ursa_node" output="screen">
 
       <param name="port" value="/dev/ttyUSB0"/>
       <param name="use_GM_mode" value="true"/>
@@ -88,6 +88,6 @@
       <param name="shaping_time" value="1"/>
       <param name="input_and_polarity" value="input1_negative"/>
       <param name="ramping_time" value="6"/>
-  </node> 
+  </node> -->
 </launch>
 

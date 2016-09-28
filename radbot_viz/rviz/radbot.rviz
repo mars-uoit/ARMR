@@ -166,13 +166,7 @@ Visualization Manager:
           Value: true
         odom:
           Value: true
-        rad_source1:
-          Value: true
-        rad_source2:
-          Value: true
-        rad_source3:
-          Value: true
-        rad_source4:
+        rad_link:
           Value: true
         rear_left_wheel_link:
           Value: true
@@ -187,45 +181,38 @@ Visualization Manager:
       Show Names: true
       Tree:
         map:
-          rad_source1:
-            {}
-          rad_source2:
-            {}
-          rad_source3:
-            {}
-          rad_source4:
-            {}
-        odom:
-          base_link:
-            chassis_link:
-              fenders_link:
-                {}
-              front_left_wheel_link:
-                {}
-              front_right_wheel_link:
-                {}
-              imu_link:
-                {}
-              mid_mount:
-                front_mount:
-                  front_laser_mount:
-                    front_laser:
-                      {}
-                rear_mount:
+          odom:
+            base_link:
+              chassis_link:
+                fenders_link:
                   {}
-              navsat_link:
-                {}
-              rear_left_wheel_link:
-                {}
-              rear_right_wheel_link:
-                {}
+                front_left_wheel_link:
+                  {}
+                front_right_wheel_link:
+                  {}
+                imu_link:
+                  {}
+                mid_mount:
+                  front_mount:
+                    front_laser_mount:
+                      front_laser:
+                        {}
+                  rear_mount:
+                    rad_link:
+                      {}
+                navsat_link:
+                  {}
+                rear_left_wheel_link:
+                  {}
+                rear_right_wheel_link:
+                  {}
       Update Interval: 0
       Value: true
     - Alpha: 1
       Autocompute Intensity Bounds: true
       Autocompute Value Bounds:
-        Max Value: 14.7508
-        Min Value: 1.87022
+        Max Value: 3.38262
+        Min Value: -6.67193
         Value: true
       Axis: Y
       Channel Name: intensity
@@ -233,7 +220,7 @@ Visualization Manager:
       Color: 255; 255; 255
       Color Transformer: AxisColor
       Decay Time: 0
-      Enabled: true
+      Enabled: false
       Invert Rainbow: false
       Max Color: 255; 255; 255
       Max Intensity: 999999
@@ -250,7 +237,7 @@ Visualization Manager:
       Unreliable: false
       Use Fixed Frame: true
       Use rainbow: false
-      Value: true
+      Value: false
     - Alpha: 0.7
       Class: rviz/Map
       Color Scheme: map
@@ -340,13 +327,13 @@ Visualization Manager:
       Value: false
     - Class: rviz/InteractiveMarkers
       Enable Transparency: true
-      Enabled: true
+      Enabled: false
       Name: InteractiveMarkers
       Show Axes: false
       Show Descriptions: false
       Show Visual Aids: true
       Update Topic: /twist_marker_server/update
-      Value: true
+      Value: false
     - Arrow Length: 0.3
       Class: rviz/PoseArray
       Color: 255; 25; 0
@@ -397,17 +384,25 @@ Visualization Manager:
       Marker Topic: /radbot_control_node/visualization_marker
       Name: Marker
       Namespaces:
-        {}
+        basic_shapes: true
       Queue Size: 100
       Value: true
     - Alpha: 0.7
       Class: rviz/Map
       Color Scheme: map
       Draw Behind: false
-      Enabled: true
+      Enabled: false
       Name: Map
       Topic: /explore_server/explore_costmap/costmap
       Unreliable: false
+      Value: false
+    - Class: rviz/MarkerArray
+      Enabled: true
+      Marker Topic: /radbot_control_node/visualization_text
+      Name: MarkerArray
+      Namespaces:
+        {}
+      Queue Size: 100
       Value: true
   Enabled: true
   Global Options:
@@ -434,7 +429,7 @@ Visualization Manager:
   Value: true
   Views:
     Current:
-      Angle: 4.71239
+      Angle: 0
       Class: rviz/TopDownOrtho
       Enable Stereo Rendering:
         Stereo Eye Separation: 0.06
@@ -443,11 +438,11 @@ Visualization Manager:
         Value: false
       Name: Current View
       Near Clip Distance: 0.01
-      Scale: 75.9566
-      Target Frame: base_link
+      Scale: 95
+      Target Frame: <Fixed Frame>
       Value: TopDownOrtho (rviz)
-      X: -2.59411
-      Y: -2.86111
+      X: 2
+      Y: -2
     Saved:
       - Angle: 4.71239
         Class: rviz/TopDownOrtho
@@ -472,8 +467,8 @@ Visualization Manager:
           Value: false
         Name: TopDownOrtho
         Near Clip Distance: 0.01
-        Scale: 20
-        Target Frame: base_link
+        Scale: 60
+        Target Frame: <Fixed Frame>
         Value: TopDownOrtho (rviz)
         X: 0
         Y: 0
