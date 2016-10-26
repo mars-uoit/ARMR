@@ -1,4 +1,5 @@
 #include <ros/ros.h>
+#include <ros/console.h>
 #include <actionlib/server/simple_action_server.h>
 #include <actionlib/client/simple_action_client.h>
 #include <costmap_2d/costmap_2d_ros.h>
@@ -14,6 +15,7 @@
 #include <move_base_msgs/MoveBaseAction.h>
 
 #include <radbot_exploration/geometry_tools.h>
+
 
 namespace radbot_exploration{
 
@@ -34,11 +36,12 @@ public:
         tf_listener_(ros::Duration(10.0)),
         private_nh_("~"),
         as_(nh_, name, boost::bind(&RadbotExplorationServer::executeCb, this, _1), false),
-        move_client_("move_base",true)
+        move_client_("move_base",true),
+        SMALL(0.01)
     {
-        private_nh_.param<double>("goal_aliasing", goal_aliasing_, 0.1);
+        private_nh_.param<double>("goal_spacing", goal_aliasing_, 0.1);
         private_nh_.param<double>("row_width", row_width_, 1.5);
-        private_nh_.param<double>("padding", padding_, 0.5);
+        private_nh_.param<double>("padding", padding_, 0.5); //padding must be less than row width
         private_nh_.param<std::string>("global_frame", global_frame_, "gps");
 
         as_.registerPreemptCallback(boost::bind(&RadbotExplorationServer::preemptCb, this));
@@ -55,6 +58,7 @@ private:
     std::string global_frame_;
     double goal_aliasing_, row_width_, padding_;
     bool success_, moving_, centering_;
+    const double SMALL;
 
 
     boost::mutex move_client_lock_;
@@ -82,21 +86,33 @@ private:
         }
 
         // generate fundamental vectors.
+        // generate padded pollygon
 
         geometry_msgs::Polygon polygon = goal->explore_boundary.polygon;
+        geometry_msgs::Polygon polygon_padded;
         geometry_msgs::Pose right_unit, left_unit, right_basis, left_basis, temp_pose;
-        geometry_msgs::Point32 bottom_unit;
+        geometry_msgs::Point32 bottom_unit, temp_point;
+        global_frame_ = goal->explore_boundary.header.frame_id; //global frame is boundary frame
 
-        
+        /*
+        // 3    2  1 to 2 = right
+        // ^    ^  0 to 3 = left
+        // |    |  0 to 1 = bottom
+        // 0 -> 1  0 is origin
+        */
+
+        polygon_padded.points.reserve(4);
+        //right unit
         double length = pointsDistance(polygon.points[2], polygon.points[1]);
         right_unit.position.x = (polygon.points[2].x-polygon.points[1].x)/length;
         right_unit.position.y = (polygon.points[2].y-polygon.points[1].y)/length;
         right_unit.position.z = (polygon.points[2].z-polygon.points[1].z)/length;
-        
 
         double yaw = atan2(right_unit.position.y, right_unit.position.x);
         tf::quaternionTFToMsg(tf::createQuaternionFromYaw(yaw), right_unit.orientation);
 
+        ROS_DEBUG_STREAM("Right Unit\n" << right_unit);
+        //left unit
         length = pointsDistance(polygon.points[3], polygon.points[0]);
         left_unit.position.x = (polygon.points[3].x-polygon.points[0].x)/length;
         left_unit.position.y = (polygon.points[3].y-polygon.points[0].y)/length;
@@ -104,96 +120,187 @@ private:
         
         yaw = atan2(left_unit.position.y, left_unit.position.x);
         tf::quaternionTFToMsg(tf::createQuaternionFromYaw(yaw), left_unit.orientation);
-        
+
+        ROS_DEBUG_STREAM("Left Unit\n" << left_unit);
+        //bottom unit
         length = pointsDistance(polygon.points[1], polygon.points[0]);
         bottom_unit.x = (polygon.points[1].x-polygon.points[0].x)/length;
         bottom_unit.y = (polygon.points[1].y-polygon.points[0].y)/length;
         bottom_unit.z = (polygon.points[1].z-polygon.points[0].z)/length;
 
-        
-        right_basis.position.x = polygon.points[1].x + (right_unit.position.x - bottom_unit.x)*padding_;
-        right_basis.position.y = polygon.points[1].y + (right_unit.position.y - bottom_unit.y)*padding_;
-        right_basis.position.z = polygon.points[1].z + (right_unit.position.z - bottom_unit.z)*padding_;
+        ROS_DEBUG_STREAM("Bottom Unit\n" << bottom_unit);
+        //left basis
+        temp_point.x = polygon.points[0].x + (left_unit.position.x + bottom_unit.x)*padding_;
+        temp_point.y = polygon.points[0].y + (left_unit.position.y + bottom_unit.y)*padding_;
+        temp_point.z = polygon.points[0].z + (left_unit.position.z + bottom_unit.z)*padding_;
+        polygon_padded.points.push_back(temp_point);
 
-        yaw = atan2((polygon.points[0].y-polygon.points[1].y), (polygon.points[0].x-polygon.points[1].x));
-        tf::quaternionTFToMsg(tf::createQuaternionFromYaw(yaw), right_basis.orientation);
-        
-        left_basis.position.x = polygon.points[0].x + (left_unit.position.x + bottom_unit.x)*padding_;
-        left_basis.position.y = polygon.points[0].y + (left_unit.position.y + bottom_unit.y)*padding_;
-        left_basis.position.z = polygon.points[0].z + (left_unit.position.z + bottom_unit.z)*padding_;
-        
+        left_basis.position.x = polygon_padded.points[0].x + (left_unit.position.x + bottom_unit.x)*SMALL;
+        left_basis.position.y = polygon_padded.points[0].y + (left_unit.position.y + bottom_unit.y)*SMALL;
+        left_basis.position.z = polygon_padded.points[0].z + (left_unit.position.z + bottom_unit.z)*SMALL;
+
         yaw = atan2((polygon.points[1].y-polygon.points[0].y), (polygon.points[1].x-polygon.points[0].x));
         tf::quaternionTFToMsg(tf::createQuaternionFromYaw(yaw), left_basis.orientation);
 
+        ROS_DEBUG_STREAM("Left Basis\n" << left_basis);
+        //right basis
+        temp_point.x = polygon.points[1].x + (right_unit.position.x - bottom_unit.x)*padding_;
+        temp_point.y = polygon.points[1].y + (right_unit.position.y - bottom_unit.y)*padding_;
+        temp_point.z = polygon.points[1].z + (right_unit.position.z - bottom_unit.z)*padding_;
+        polygon_padded.points.push_back(temp_point);
+
+        right_basis.position.x = polygon_padded.points[1].x + (right_unit.position.x - bottom_unit.x)*SMALL;
+        right_basis.position.y = polygon_padded.points[1].y + (right_unit.position.y - bottom_unit.y)*SMALL;
+        right_basis.position.z = polygon_padded.points[1].z + (right_unit.position.z - bottom_unit.z)*SMALL;
+
+        yaw = atan2((polygon.points[0].y-polygon.points[1].y), (polygon.points[0].x-polygon.points[1].x));
+        tf::quaternionTFToMsg(tf::createQuaternionFromYaw(yaw), right_basis.orientation);
+
+        ROS_DEBUG_STREAM("Right Basis\n" << right_basis);
+        //top right
+        temp_point.x = polygon.points[2].x + (-right_unit.position.x - bottom_unit.x)*(padding_-SMALL);
+        temp_point.y = polygon.points[2].y + (-right_unit.position.y - bottom_unit.y)*(padding_-SMALL);
+        temp_point.z = polygon.points[2].z + (-right_unit.position.z - bottom_unit.z)*(padding_-SMALL);
+        polygon_padded.points.push_back(temp_point);
+
+        ROS_DEBUG_STREAM("Top Right\n" << temp_point);
+        //top left
+        temp_point.x = polygon.points[3].x + (-left_unit.position.x + bottom_unit.x)*(padding_-SMALL);
+        temp_point.y = polygon.points[3].y + (-left_unit.position.y + bottom_unit.y)*(padding_-SMALL);
+        temp_point.z = polygon.points[3].z + (-left_unit.position.z + bottom_unit.z)*(padding_-SMALL);
+        polygon_padded.points.push_back(temp_point);
+
+        ROS_DEBUG_STREAM("Top Left\n" << temp_point);
+        ROS_DEBUG_STREAM("Polygon 0\n" << polygon_padded.points[0]);
+        ROS_DEBUG_STREAM("Polygon 1\n" << polygon_padded.points[1]);
+        ROS_DEBUG_STREAM("Polygon 2\n" << polygon_padded.points[2]);
+        ROS_DEBUG_STREAM("Polygon 3\n" << polygon_padded.points[3]);
+        ROS_DEBUG_STREAM("polygon_padded length:"<<(int)(polygon_padded.points.size()-1)<<"\n");
+        
+
         //generate goals.
+        //method: start at left, move right in the direction of bottom vector at step size equal to row width, stop when new point would be outside polygon, set right side, move up along right vector if theres space in polygon.
+        //                        move left in the oppocite direction of bottom vector. etc.
+         /*|
+        // 3 <- 2
+        //      ^
+        //      |
+        // 0 -> 1
+        */
+
 
         int finished =0;
-        int counter = 0;
 
         temp_pose.position.x = left_basis.position.x;
         temp_pose.position.y = left_basis.position.y;
         temp_pose.position.z = left_basis.position.z;
-        temp_pose.orientation = left_basis.orientation;
-        goals_.push_back(temp_pose);
+        temp_pose.orientation = left_basis.orientation; //facing right
+        goals_.push_back(temp_pose); //left side
 
         while(1){
-            temp_pose.position.x = right_basis.position.x + (right_unit.position.x * row_width_ * counter);
-            temp_pose.position.y = right_basis.position.y + (right_unit.position.y * row_width_ * counter);
-            temp_pose.position.z = right_basis.position.z + (right_unit.position.z * row_width_ * counter);
-            temp_pose.orientation = right_unit.orientation;
-            goals_.push_back(temp_pose);
+            temp_pose.position.x += (bottom_unit.x * goal_aliasing_);
+            temp_pose.position.y += (bottom_unit.y * goal_aliasing_);
+            temp_pose.position.z += (bottom_unit.z * goal_aliasing_);
+            if(!pointInPolygon(temp_pose.position, polygon_padded)) {
+                break;
+            }
+            ROS_DEBUG_STREAM("Iniitial Moved Right\n");
+            goals_.push_back(temp_pose); //move right
+        }
 
-            counter++;
-            temp_pose.position.x = right_basis.position.x + (right_unit.position.x * row_width_ * counter);
-            temp_pose.position.y = right_basis.position.y + (right_unit.position.y * row_width_ * counter);
-            temp_pose.position.z = right_basis.position.z + (right_unit.position.z * row_width_ * counter);
-            temp_pose.orientation = right_basis.orientation;
-            if(!pointInPolygon(temp_pose.position, polygon)) {
+        temp_pose.position.x = right_basis.position.x;
+        temp_pose.position.y = right_basis.position.y;
+        temp_pose.position.z = right_basis.position.z;
+        temp_pose.orientation = right_unit.orientation; //facing up
+        goals_.push_back(temp_pose); //right side
+
+        while(1){
+            right_basis.position.x += (right_unit.position.x * row_width_);
+            right_basis.position.y += (right_unit.position.y * row_width_);
+            right_basis.position.z += (right_unit.position.z * row_width_);
+            temp_pose.position.x = right_basis.position.x;
+            temp_pose.position.y = right_basis.position.y;
+            temp_pose.position.z = right_basis.position.z;
+            temp_pose.orientation = right_basis.orientation; //facing left
+            if(!pointInPolygon(temp_pose.position, polygon_padded)) {
                 finished = 2;
                 break;
             }
-            goals_.push_back(temp_pose);
+            goals_.push_back(temp_pose); //move up on right side if there's space
 
-            temp_pose.position.x = left_basis.position.x + (left_unit.position.x * row_width_ * counter);
-            temp_pose.position.y = left_basis.position.y + (left_unit.position.y * row_width_ * counter);
-            temp_pose.position.z = left_basis.position.z + (left_unit.position.z * row_width_ * counter);
-            temp_pose.orientation = left_unit.orientation;
-            goals_.push_back(temp_pose);
+
+            while(1){
+                temp_pose.position.x -= (bottom_unit.x * goal_aliasing_);
+                temp_pose.position.y -= (bottom_unit.y * goal_aliasing_);
+                temp_pose.position.z -= (bottom_unit.z * goal_aliasing_);
+                if(!pointInPolygon(temp_pose.position, polygon_padded)) {
+                    break;
+                }
+                goals_.push_back(temp_pose); //move left
+            }
+            left_basis.position.x += (left_unit.position.x * row_width_);
+            left_basis.position.y += (left_unit.position.y * row_width_);
+            left_basis.position.z += (left_unit.position.z * row_width_);
+            temp_pose.position.x = left_basis.position.x;
+            temp_pose.position.y = left_basis.position.y;
+            temp_pose.position.z = left_basis.position.z;
+            temp_pose.orientation = left_unit.orientation; //facing up
+            goals_.push_back(temp_pose); //left side
             
-            counter++;
-            temp_pose.position.x = left_basis.position.x + (left_unit.position.x * row_width_ * counter);
-            temp_pose.position.y = left_basis.position.y + (left_unit.position.y * row_width_ * counter);
-            temp_pose.position.z = left_basis.position.z + (left_unit.position.z * row_width_ * counter);
-            temp_pose.orientation = left_basis.orientation;
-            if(!pointInPolygon(temp_pose.position, polygon)) {
+            left_basis.position.x += (left_unit.position.x * row_width_);
+            left_basis.position.y += (left_unit.position.y * row_width_);
+            left_basis.position.z += (left_unit.position.z * row_width_);
+            temp_pose.position.x = left_basis.position.x;
+            temp_pose.position.y = left_basis.position.y;
+            temp_pose.position.z = left_basis.position.z;
+            temp_pose.orientation = left_basis.orientation; //facing right
+            if(!pointInPolygon(temp_pose.position, polygon_padded)) {
                 finished = 1;
                 break;
             }
-            goals_.push_back(temp_pose);
+            goals_.push_back(temp_pose); //move up on left side if there's space
+
+            while(1){
+                temp_pose.position.x += (bottom_unit.x * goal_aliasing_);
+                temp_pose.position.y += (bottom_unit.y * goal_aliasing_);
+                temp_pose.position.z += (bottom_unit.z * goal_aliasing_);
+                if(!pointInPolygon(temp_pose.position, polygon_padded)) {
+                    break;
+                }
+                goals_.push_back(temp_pose); //move right
+            }
+            right_basis.position.x += (right_unit.position.x * row_width_);
+            right_basis.position.y += (right_unit.position.y * row_width_);
+            right_basis.position.z += (right_unit.position.z * row_width_);
+            temp_pose.position.x = right_basis.position.x;
+            temp_pose.position.y = right_basis.position.y;
+            temp_pose.position.z = right_basis.position.z;
+            temp_pose.orientation = right_unit.orientation; //facing up
+            goals_.push_back(temp_pose); //right side
         }
         if(finished == 1) {
-            temp_pose.position.x = polygon.points[3].x;
-            temp_pose.position.y = polygon.points[3].y;
-            temp_pose.position.z = polygon.points[3].z;
+            temp_pose.position.x = polygon_padded.points[3].x;
+            temp_pose.position.y = polygon_padded.points[3].y;
+            temp_pose.position.z = polygon_padded.points[3].z;
             temp_pose.orientation = left_basis.orientation;
             goals_.push_back(temp_pose);
 
-            temp_pose.position.x = polygon.points[2].x;
-            temp_pose.position.y = polygon.points[2].y;
-            temp_pose.position.z = polygon.points[2].z;
+            temp_pose.position.x = polygon_padded.points[2].x;
+            temp_pose.position.y = polygon_padded.points[2].y;
+            temp_pose.position.z = polygon_padded.points[2].z;
             temp_pose.orientation = right_basis.orientation;
             goals_.push_back(temp_pose);
         } else if (finished == 2) {
             
-            temp_pose.position.x = polygon.points[2].x;
-            temp_pose.position.y = polygon.points[2].y;
-            temp_pose.position.z = polygon.points[2].z;
+            temp_pose.position.x = polygon_padded.points[2].x;
+            temp_pose.position.y = polygon_padded.points[2].y;
+            temp_pose.position.z = polygon_padded.points[2].z;
             temp_pose.orientation = right_basis.orientation;
             goals_.push_back(temp_pose);
 
-            temp_pose.position.x = polygon.points[3].x;
-            temp_pose.position.y = polygon.points[3].y;
-            temp_pose.position.z = polygon.points[3].z;
+            temp_pose.position.x = polygon_padded.points[3].x;
+            temp_pose.position.y = polygon_padded.points[3].y;
+            temp_pose.position.z = polygon_padded.points[3].z;
             temp_pose.orientation = left_basis.orientation;
             goals_.push_back(temp_pose);
         } else{

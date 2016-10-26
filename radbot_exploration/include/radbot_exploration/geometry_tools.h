@@ -62,10 +62,10 @@ namespace radbot_exploration{
       for (int i = 0, j = polygon.points.size()-1; i < polygon.points.size(); j = i++) {
           if ( ((polygon.points[i].y > point.y) != (polygon.points[j].y>point.y)) &&
               (point.x < (polygon.points[j].x-polygon.points[i].x) * (point.y-polygon.points[i].y) / (polygon.points[j].y-polygon.points[i].y) + polygon.points[i].x) ){
-              cross++;
+              cross = !cross;
           }
       }
-      return bool(cross % 2);
+      return bool(cross);
   }
 
 /**
