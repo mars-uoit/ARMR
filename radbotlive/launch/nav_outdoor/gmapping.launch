@@ -4,7 +4,7 @@
 
   <include file="$(find radbotlive)/launch/$(optenv ROBOT jackal).machine"/>
 
-  <!--<include file="$(find radbotlive)/launch/nav_outdoor/gps_integration.launch"/>-->
+  <include file="$(find radbotlive)/launch/nav_outdoor/gps_integration.launch"/>
 
   <node machine="c2" pkg="gmapping" type="slam_gmapping" name="slam_gmapping" output="screen">
 
@@ -52,10 +52,10 @@
     <param name="particles" value="10"/> #default 10
 
 <!-- Initial map size  -->
-    <param name="xmin" value="-50.0"/>
-    <param name="ymin" value="-50.0"/>
-    <param name="xmax" value="50.0"/>
-    <param name="ymax" value="50.0"/>
+    <param name="xmin" value="-25.0"/>
+    <param name="ymin" value="-25.0"/>
+    <param name="xmax" value="25.0"/>
+    <param name="ymax" value="25.0"/>
 
     <!-- Processing parameters (resolution of the map)  -->
     <param name="delta" value="0.05"/> #default 0.02
