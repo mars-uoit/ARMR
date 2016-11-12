@@ -29,7 +29,6 @@
             track_unknown_space: true
 
             plugins:
-
                 - {name: static,           type: "costmap_2d::StaticLayer"}
                 - {name: RadLayer,         type: "radbot_control::RadLayer"}
 
@@ -39,8 +38,8 @@
                 map_topic: move_base/global_costmap/costmap
                 subscribe_to_updates: false
             RadLayer:
-                max_counts: 15000
-                shepard_power: 2.0
+                max_counts: 12000
+                shepard_power: 1.5
                 measure_dist: 0.3
 
       </rosparam>
@@ -52,18 +51,18 @@
 
   <node pkg="tf" type="static_transform_publisher" name="link1_broadcaster" args="0 0 .28 0 0 0 1 rear_mount rad_link 100" />
 
-  <!--<node pkg="radbot_src_sim" type="radbot_src_sim_node"
+  <node pkg="radbot_src_sim" type="radbot_src_sim_node"
     name="radbot_src_sim_node" output="screen">
 
-    <param name="global_frame" value="map"/>
+    <param name="global_frame" value="gps"/>
 
     <param name="x1" value="3.5"/>
     <param name="y1" value="-1"/>
-    <param name="rad_strength1" value="50000"/>
+    <param name="rad_strength1" value="10000"/>
 
     <param name="x2" value="2.5"/>
     <param name="y2" value="-3.5"/>
-    <param name="rad_strength2" value="20000"/>
+    <param name="rad_strength2" value="5000"/>
 
     <param name="x3" value="0"/>
     <param name="y3" value="0"/>
@@ -72,8 +71,9 @@
     <param name="x4" value="0"/>
     <param name="y4" value="0"/>
     <param name="rad_strength4" value="0"/>
-
   </node> 
+
+<!--
     <node machine="c2" pkg="ursa_driver" type="ursa_node" name="ursa_node" output="screen">
 
       <param name="port" value="/dev/ttyUSB0"/>
