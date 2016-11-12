@@ -79,8 +79,8 @@ int main(int argc, char** argv) {
             "process_sampler", true);
     psoAc = new actionlib::SimpleActionClient<radbot_processor::psoAction>(
             "process_pso", true);
-    psoAc->waitForServer();
-    sampler->waitForServer();
+    //psoAc->waitForServer(); //FIXME
+    //sampler->waitForServer();
 
     //sample positions
     sample_marker.header.frame_id = "map";

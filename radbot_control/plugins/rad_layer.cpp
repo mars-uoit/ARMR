@@ -70,21 +70,23 @@ namespace radbot_control
   }
 
   void RadLayer::paintCostmap(double x, double y, int cost){
+    double i_meter, j_meter, distance, originX, originY;
     double res = getResolution();
-    int max_i = (x + 5 - getOriginX())/res;
-    int max_j = (y + 5 - getOriginY())/res;
-    int min_i = (x - 5 - getOriginX())/res;
-    int min_j = (y - 5 - getOriginY())/res;
+    originX = getOriginX();
+    originY = getOriginY();
+    int max_i = (x + 5 - originX)/res;
+    int max_j = (y + 5 - originY)/res;
+    int min_i = (x - 5 - originX)/res;
+    int min_j = (y - 5 - originY)/res;
     double weight=0;
     int new_cost;
-    double i_meter, j_meter, distance;
-    
+
     for (int i = min_i; i< max_i; i++)
     {
-      i_meter = getOriginX() + i * res;
+      i_meter = originX + i * res;
       for (int j = min_j; j < max_j; j++)
       {
-        j_meter = getOriginY() + j * res;
+        j_meter = originY + j * res;
         distance = pow((pow(i_meter - x, 2) + pow(j_meter - y, 2)), 0.5);
         if (distance < res * 4)
         {
