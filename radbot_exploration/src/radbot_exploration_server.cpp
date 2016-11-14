@@ -285,6 +285,16 @@ private:
             temp_pose.orientation = left_basis.orientation;
             goals_.push_back(temp_pose);
 
+            while(1){
+                temp_pose.position.x += (bottom_unit.x * goal_aliasing_);
+                temp_pose.position.y += (bottom_unit.y * goal_aliasing_);
+                temp_pose.position.z += (bottom_unit.z * goal_aliasing_);
+                if(!pointInPolygon(temp_pose.position, polygon_padded)) {
+                    break;
+                }
+                goals_.push_back(temp_pose); //move right
+            }
+
             temp_pose.position.x = polygon_padded.points[2].x;
             temp_pose.position.y = polygon_padded.points[2].y;
             temp_pose.position.z = polygon_padded.points[2].z;
@@ -297,6 +307,16 @@ private:
             temp_pose.position.z = polygon_padded.points[2].z;
             temp_pose.orientation = right_basis.orientation;
             goals_.push_back(temp_pose);
+
+            while(1){
+                temp_pose.position.x -= (bottom_unit.x * goal_aliasing_);
+                temp_pose.position.y -= (bottom_unit.y * goal_aliasing_);
+                temp_pose.position.z -= (bottom_unit.z * goal_aliasing_);
+                if(!pointInPolygon(temp_pose.position, polygon_padded)) {
+                    break;
+                }
+                goals_.push_back(temp_pose); //move left
+            }
 
             temp_pose.position.x = polygon_padded.points[3].x;
             temp_pose.position.y = polygon_padded.points[3].y;
