@@ -8,7 +8,7 @@
 #include <geometry_msgs/PolygonStamped.h>
 #include <geometry_msgs/Point.h>
 
-#include <radbot_exploration/ExploreTaskAction.h>
+#include <frontier_exploration/ExploreTaskAction.h>
 
 #include <tf/transform_listener.h>
 
@@ -53,7 +53,7 @@ private:
     ros::NodeHandle nh_;
     ros::NodeHandle private_nh_;
     tf::TransformListener tf_listener_;
-    actionlib::SimpleActionServer<radbot_exploration::ExploreTaskAction> as_;
+    actionlib::SimpleActionServer<frontier_exploration::ExploreTaskAction> as_;
 
     std::string global_frame_;
     double goal_aliasing_, row_width_, padding_;
@@ -62,7 +62,7 @@ private:
 
 
     boost::mutex move_client_lock_;
-    radbot_exploration::ExploreTaskFeedback feedback_;
+    frontier_exploration::ExploreTaskFeedback feedback_;
     actionlib::SimpleActionClient<move_base_msgs::MoveBaseAction> move_client_;
     std::vector <geometry_msgs::Pose> goals_;
     std::vector<geometry_msgs::Pose>::iterator goalsIt_;
@@ -73,7 +73,7 @@ private:
      * @param goal ActionGoal containing boundary of area to explore, and a valid centerpoint for the area.
      */
 
-    void executeCb(const radbot_exploration::ExploreTaskGoalConstPtr &goal)
+    void executeCb(const frontier_exploration::ExploreTaskGoalConstPtr &goal)
     {
 
         success_ = false;

@@ -14,6 +14,7 @@ find_package(catkin REQUIRED COMPONENTS
   move_base_msgs
   geometry_msgs
   radbot_processor
+  frontier_exploration
   costmap_2d
   ursa_driver
 )
@@ -93,6 +94,7 @@ catkin_package(
     rad_costmap
   CATKIN_DEPENDS 
     radbot_processor
+    frontier_exploration
     move_base_msgs
     geometry_msgs
     actionlib

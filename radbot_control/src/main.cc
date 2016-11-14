@@ -1,4 +1,5 @@
 #include <ros/ros.h>
+#include <ros/console.h>
 #include <stdio.h>
 #include <move_base_msgs/MoveBaseAction.h>
 #include <geometry_msgs/Twist.h>
@@ -11,13 +12,21 @@
 #include <std_srvs/Empty.h>
 #include "radbot_control/Autosample.h"
 #include "radbot_control/Numsrc.h"
+#include "frontier_exploration/ExploreTaskActionGoal.h"
+#include "frontier_exploration/ExploreTaskActionResult.h"
+#include <move_base_msgs/MoveBaseAction.h>
 //costmap
 #include <tf/transform_listener.h>
+#include <tf/transform_datatypes.h>
 #include <costmap_2d/costmap_2d_ros.h>
 #include <costmap_2d/costmap_2d.h>
 
 
-ros::Subscriber sub;
+ros::Subscriber move_sub;
+ros::Subscriber explore_sub;
+ros::Subscriber home_sub;
+geometry_msgs::PoseStamped goal_pose;
+tf::TransformListener * tf_listener;
 ros::Publisher pub;
 ros::Publisher marker_pub;
 ros::Publisher marker_text_pub;
@@ -39,8 +48,12 @@ bool numSrcCB(radbot_control::Numsrc::Request &req,
               radbot_control::Numsrc::Response &res);
 bool sampleMarkerCB(std_srvs::Empty::Request &req, std_srvs::Empty::Response &res);
 
+void setHomeCB(const frontier_exploration::ExploreTaskActionGoalConstPtr ptr);
+void goHomeCB(const frontier_exploration::ExploreTaskActionResultConstPtr ptr);
+
 actionlib::SimpleActionClient<radbot_processor::sampleAction> * sampler;
 actionlib::SimpleActionClient<radbot_processor::psoAction> * psoAc;
+actionlib::SimpleActionClient<move_base_msgs::MoveBaseAction> * move_client;
 
 int main(int argc, char** argv) {
     ros::init(argc, argv, "radbot_control");
@@ -51,20 +64,25 @@ int main(int argc, char** argv) {
     pnh.param("num_samples", num_samples, 10);
     pnh.param<std::string>("marker_frame", frame, "odom");
 
-    sub = pnh.subscribe<move_base_msgs::MoveBaseActionResult>(
+    move_sub = pnh.subscribe<move_base_msgs::MoveBaseActionResult>(
             "/move_base/result", 10, &moveBaseCB);
+    explore_sub = pnh.subscribe<frontier_exploration::ExploreTaskActionGoal>(
+            "/explore_server/goal", 10, &setHomeCB);
+    home_sub = pnh.subscribe<frontier_exploration::ExploreTaskActionResult>(
+            "/explore_server/result", 10, &goHomeCB);
     pub = pnh.advertise<geometry_msgs::Twist>("/cmd_vel/maskable", 1);
     marker_pub = pnh.advertise<visualization_msgs::Marker>(
             "visualization_marker", 1);
     marker_text_pub = pnh.advertise<visualization_msgs::MarkerArray>(
             "visualization_text", 1);
 
+    tf_listener = new tf::TransformListener(pnh, ros::Duration(10.0), true);
     //costmap
-    tf::TransformListener tf_listener;
+    tf::TransformListener costmap_listener;
     boost::shared_ptr<costmap_2d::Costmap2DROS> rad_costmap_ros = 
         boost::shared_ptr<costmap_2d::Costmap2DROS>(new 
-        costmap_2d::Costmap2DROS("rad_costmap", tf_listener));
-
+        costmap_2d::Costmap2DROS("rad_costmap", costmap_listener));
+    //services
     ros::ServiceServer autoService = nh.advertiseService("autosample",
                                                          enableCB);
     ros::ServiceServer psoService = nh.advertiseService("pso_trigger", psoCB);
@@ -74,13 +92,16 @@ int main(int argc, char** argv) {
                                                             numSrcCB);
     ros::ServiceServer sampleMarkerService = nh.advertiseService("reset_sample_markers",
                                                             sampleMarkerCB);
-
+    //actions
     sampler = new actionlib::SimpleActionClient<radbot_processor::sampleAction>(
             "process_sampler", true);
     psoAc = new actionlib::SimpleActionClient<radbot_processor::psoAction>(
             "process_pso", true);
+    move_client = new actionlib::SimpleActionClient<move_base_msgs::MoveBaseAction>(
+            "move_base", true);
     //psoAc->waitForServer(); //FIXME
     //sampler->waitForServer();
+    move_client->waitForServer();
 
     //sample positions
     sample_marker.header.frame_id = "map";
@@ -117,6 +138,27 @@ void moveBaseCB(const move_base_msgs::MoveBaseActionResultConstPtr ptr) {
         // get sample
         getSample();
     }
+}
+
+void setHomeCB(const frontier_exploration::ExploreTaskActionGoalConstPtr ptr) {
+    tf::StampedTransform robot_pose;
+    tf_listener->waitForTransform(ptr->goal.explore_center.header.frame_id, "base_link", ros::Time(0), ros::Duration(1.0));
+    tf_listener->lookupTransform(ptr->goal.explore_center.header.frame_id, "base_link", ros::Time(0), robot_pose);
+    goal_pose.pose.position.x = robot_pose.getOrigin().x();
+    goal_pose.pose.position.y = robot_pose.getOrigin().y();
+    goal_pose.pose.position.z = robot_pose.getOrigin().z();
+    tf::quaternionTFToMsg(robot_pose.getRotation(), goal_pose.pose.orientation);
+    goal_pose.header.frame_id = ptr->goal.explore_center.header.frame_id;
+
+    ROS_DEBUG_STREAM("set home");
+}
+
+void goHomeCB(const frontier_exploration::ExploreTaskActionResultConstPtr ptr) {
+    move_base_msgs::MoveBaseGoal move_client_goal;
+    move_client_goal.target_pose = goal_pose;
+    move_client->sendGoal(move_client_goal);
+
+    ROS_DEBUG_STREAM("go home");
 }
 
 void getSample() {

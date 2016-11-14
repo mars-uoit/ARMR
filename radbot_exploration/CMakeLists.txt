@@ -99,11 +99,11 @@ catkin_package(
 ## Specify additional locations of header files
 ## Your package locations should be listed before other locations
 # include_directories(include)
-include_directories(
+ include_directories(
   include
   ${catkin_INCLUDE_DIRS}
   ${Boost_INCLUDE_DIRS}
-)
+ )
 
 ## Declare a cpp library
 # add_library(radbot_exploration
@@ -112,7 +112,7 @@ include_directories(
 
 ## Declare a cpp executable
  add_executable(radbot_exploration_client src/radbot_exploration_client.cpp)
-  add_executable(radbot_exploration_server src/radbot_exploration_server.cpp)
+ add_executable(radbot_exploration_server src/radbot_exploration_server.cpp)
 
 ## Add cmake target dependencies of the executable/library
 ## as an example, message headers may need to be generated before nodes
