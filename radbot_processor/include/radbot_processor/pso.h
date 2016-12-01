@@ -76,11 +76,13 @@ private:
     void
     loop();
 
-    static const double kC1 = 1.49;
-    static const double kC2 = 1.49;
-    static const double kW = 0.72;
-    static const double kStopVal = .02;
+    static const double kC1_ = 1.49;
+    static const double kC2_ = 1.49;
+    static const double kW_ = 0.72;
+    static const double kStopVal_ = .02;
+    static const int kTotalRuns_ = 10;
     int stop_top_;
+
 
     boost::random::mt19937 rng_;
     boost::random::uniform_real_distribution<double> uniform_;
@@ -91,6 +93,7 @@ private:
 
     std::vector<double> v_, particles_, pbest_, pmin_, gbest_;
     double gmin_;
+    double  prevmin_;
     std::vector<int> neigh_;
 
 #define GET_ROW(x, vect)(std::vector<double>(vect.begin()+x*n_vars_,vect.begin()+(x+1)*n_vars_))

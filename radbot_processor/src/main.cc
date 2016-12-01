@@ -4,6 +4,7 @@
  *  Created on: Jun 26, 2015
  *      Author: hosmar
  */
+
 #include <fstream>
 #include <iostream>
 #include <sstream>
@@ -81,17 +82,17 @@ int main(int argc, char **argv) {
     ros::ServiceServer clrSamplesSrv = nh.advertiseService("clear_samples",
                                                            clearSamplesCB);
 
-    my_pso = new pso(*my_cost, min_val, max_val, 100, 10000, 2);
+    my_pso = new pso(*my_cost, min_val, max_val, 250, 3000, 2);
 
 #ifdef DEBUG
     openFile();
     my_cost = new costfn(
-            vector<sample>(measurements.begin(), measurements.begin() + 11));
-    pso my_pso(*my_cost, min_val, max_val, 100, 5000, 2);
+            vector<sample>(measurements.begin(), measurements.end()));
+    pso my_pso2(*my_cost, min_val, max_val, 250, 3000, 2);
     std::vector<double> result;
     std::ostream_iterator<double> out_it(std::cout, ", ");
-    //clock_t t0 = clock(), t1;
-    for (vector<sample>::iterator i = measurements.begin() + 11;
+    clock_t t0 = clock(), t1, t2;
+    /*for (vector<sample>::iterator i = measurements.begin() + 11;
             i != measurements.end(); i++)
     {
         my_cost->addSample(*i);
@@ -99,9 +100,18 @@ int main(int argc, char **argv) {
         result = my_pso.run();
         std::copy(result.begin(), result.end(), out_it);
         cout << endl;
+    }*/
+    for(int i = 0; i<10; i++){
+        t2 = clock();
+        result = my_pso2.run();
+        std::copy(result.begin(), result.end(), out_it);
+        cout << endl;
+        t1 = clock() - t2;
+        cout << (float) t1 / CLOCKS_PER_SEC << endl;
     }
-    //t1 = clock() - t0;
-    //cerr << (float) t1 / CLOCKS_PER_SEC << endl;
+
+    t1 = clock() - t0;
+    cerr << (float) t1 / CLOCKS_PER_SEC << endl;
 #endif
 
     sampleAs->start();
@@ -190,7 +200,7 @@ bool clearSamplesCB(std_srvs::Empty::Request& request,
 
 inline void openFile() {
     try {
-        infile.open("datawval.csv", ifstream::in);
+        infile.open("data_4_extra.csv", ifstream::in);
     }
     catch (ifstream::failure * e) {
         ROS_ERROR("Exception opening/reading/closing file");
