@@ -99,8 +99,8 @@ int main(int argc, char** argv) {
             "process_pso", true);
     move_client = new actionlib::SimpleActionClient<move_base_msgs::MoveBaseAction>(
             "move_base", true);
-    //psoAc->waitForServer(); //FIXME
-    //sampler->waitForServer();
+    psoAc->waitForServer();
+    sampler->waitForServer();
     move_client->waitForServer();
 
     //sample positions

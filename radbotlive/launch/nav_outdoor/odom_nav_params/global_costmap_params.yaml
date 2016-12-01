@@ -12,6 +12,6 @@ global_costmap:
    rolling_window: false
 
    plugins:
-   - {name: static_layer, type: "costmap_2d::StaticLayer"}
+   #- {name: static_layer, type: "costmap_2d::StaticLayer"}
    - {name: obstacles_layer, type: "costmap_2d::ObstacleLayer"}
    - {name: inflater_layer, type: "costmap_2d::InflationLayer"}

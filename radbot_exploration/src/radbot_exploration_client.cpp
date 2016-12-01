@@ -127,6 +127,7 @@ private:
                 input_.polygon.points.clear();
             }else{
                 waiting_for_center_ = true;
+                input_.polygon.points.push_back(costmap_2d::toPoint32(point->point));
                 ROS_WARN("Please select an initial point for exploration inside the polygon");
             }
 
