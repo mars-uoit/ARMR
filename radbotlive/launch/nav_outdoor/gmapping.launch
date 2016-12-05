@@ -4,8 +4,6 @@
 
   <include file="$(find radbotlive)/launch/$(optenv ROBOT jackal).machine"/>
 
-  <include file="$(find radbotlive)/launch/nav_outdoor/gps_integration.launch"/>
-
   <node machine="c2" pkg="gmapping" type="slam_gmapping" name="slam_gmapping" output="screen">
 
     <param name="odom_frame" value="gps"/>

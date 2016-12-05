@@ -28,6 +28,7 @@ vector<sample> measurements;
 sample max_val, min_val;
 
 //sample action variables
+ros::NodeHandle * nhp;
 string global_frame;
 string rad_topic;
 actionlib::SimpleActionServer<radbot_processor::sampleAction> * sampleAs;
@@ -63,9 +64,9 @@ int main(int argc, char **argv) {
     ros::init(argc, argv, "radbot_processor");
     ros::NodeHandle nh;
     ros::NodeHandle pnh("~");
+    nhp = &pnh;
     tf_listener = new tf::TransformListener(nh);
 
-    pnh.param<std::string>("global_frame", global_frame, "map");
     pnh.param<std::string>("topic", rad_topic, "counts");
 
     my_cost = new costfn();
@@ -131,10 +132,11 @@ inline void sampleCB(const ursa_driver::ursa_countsConstPtr msg) {
     if (sample_count >= sample_goal) {
         tf::StampedTransform transform;
         int tries = 0;
+        nhp->param<std::string>("global_frame", global_frame, "map");
         while (!tf_listener->waitForTransform(global_frame,
                                               msg->header.frame_id,
                                               msg->header.stamp,
-                                              ros::Duration(10.0))) {
+                                              ros::Duration(1.0))) {
             ROS_ERROR_STREAM(
                     "Couldn't transform from \"" << global_frame << "\" to \""
                             << msg->header.frame_id << "\"");

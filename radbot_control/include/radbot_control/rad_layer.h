@@ -37,7 +37,8 @@ private:
   
   void countsCB(const ursa_driver::ursa_countsConstPtr counts);
   void paintCostmap(double x, double y, int cost);
-  
+
+  std::string global_frame_;
   ros::Subscriber counts_sub_;
   tf::TransformListener tf_listener_;
   int current_cost_;

@@ -21,6 +21,7 @@ namespace radbot_control
     default_value_ = FREE_SPACE;
     matchSize();
 
+    global_frame_ = layered_costmap_->getGlobalFrameID();
     dsrv_ = new dynamic_reconfigure::Server<costmap_2d::GenericPluginConfig>(nh);
     dynamic_reconfigure::Server<costmap_2d::GenericPluginConfig>::CallbackType cb = boost::bind(
         &RadLayer::reconfigureCB, this, _1, _2);
@@ -57,8 +58,8 @@ namespace radbot_control
     current_cost_ = 255*counts->counts/max_rad_;
     if(current_cost_ > 254) current_cost_ = 254;
     tf::StampedTransform robot_pose;
-    tf_listener_.waitForTransform("/map", counts->header.frame_id, ros::Time(0), ros::Duration(10.0));
-    tf_listener_.lookupTransform("/map", counts->header.frame_id, ros::Time(0), robot_pose);
+    tf_listener_.waitForTransform(global_frame_, counts->header.frame_id, ros::Time(0), ros::Duration(10.0));
+    tf_listener_.lookupTransform(global_frame_, counts->header.frame_id, ros::Time(0), robot_pose);
     
     tfScalar dist = robot_pose.getOrigin().distance(last_measure_);
     

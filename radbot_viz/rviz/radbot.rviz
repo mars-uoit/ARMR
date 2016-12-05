@@ -7,7 +7,7 @@ Panels:
         - /Global Options1
         - /TF1/Tree1
       Splitter Ratio: 0.5
-    Tree Height: 820
+    Tree Height: 698
   - Class: rviz/Selection
     Name: Selection
   - Class: rviz/Tool Properties
@@ -15,7 +15,6 @@ Panels:
       - /2D Pose Estimate1
       - /2D Nav Goal1
       - /Publish Point1
-      - /Plant Flag1
     Name: Tool Properties
     Splitter Ratio: 0.588679
   - Class: rviz/Views
@@ -30,7 +29,7 @@ Panels:
     Experimental: false
     Name: Time
     SyncMode: 2
-    SyncSource: LaserScan
+    SyncSource: ""
   - Class: radbot_dashboard/Radbot Dashboard
     Map Selection: ""
     Name: Radbot Dashboard
@@ -171,6 +170,14 @@ Visualization Manager:
           Value: true
         rad_link:
           Value: true
+        rad_source1:
+          Value: true
+        rad_source2:
+          Value: true
+        rad_source3:
+          Value: true
+        rad_source4:
+          Value: true
         rear_left_wheel_link:
           Value: true
         rear_mount:
@@ -185,39 +192,46 @@ Visualization Manager:
       Tree:
         map:
           gps:
-            {}
-        odom:
-          base_link:
-            chassis_link:
-              fenders_link:
-                {}
-              front_left_wheel_link:
-                {}
-              front_right_wheel_link:
-                {}
-              imu_link:
-                {}
-              mid_mount:
-                front_mount:
-                  front_laser_mount:
-                    front_laser:
-                      {}
-                rear_mount:
-                  rad_link:
+            odom:
+              base_link:
+                chassis_link:
+                  fenders_link:
                     {}
-              navsat_link:
-                {}
-              rear_left_wheel_link:
-                {}
-              rear_right_wheel_link:
-                {}
+                  front_left_wheel_link:
+                    {}
+                  front_right_wheel_link:
+                    {}
+                  imu_link:
+                    {}
+                  mid_mount:
+                    front_mount:
+                      front_laser_mount:
+                        front_laser:
+                          {}
+                    rear_mount:
+                      rad_link:
+                        {}
+                  navsat_link:
+                    {}
+                  rear_left_wheel_link:
+                    {}
+                  rear_right_wheel_link:
+                    {}
+            rad_source1:
+              {}
+            rad_source2:
+              {}
+            rad_source3:
+              {}
+            rad_source4:
+              {}
       Update Interval: 0
       Value: true
     - Alpha: 1
       Autocompute Intensity Bounds: true
       Autocompute Value Bounds:
-        Max Value: 2.54398
-        Min Value: -7.90199
+        Max Value: 3.38262
+        Min Value: -6.67193
         Value: true
       Axis: Y
       Channel Name: intensity
@@ -293,7 +307,7 @@ Visualization Manager:
       Buffer Length: 1
       Class: rviz/Path
       Color: 25; 255; 0
-      Enabled: false
+      Enabled: true
       Head Diameter: 0.3
       Head Length: 0.2
       Length: 0.3
@@ -386,10 +400,7 @@ Visualization Manager:
         explore_points: true
       Queue Size: 100
       Value: true
-    - Alpha: 0.7
-      Blocks: 3
-      Class: rviz_plugins/AerialMapDisplay
-      Draw Behind: false
+    - Class: rviz_plugins/AerialMapDisplay
       Enabled: false
       Name: AerialMapDisplay
       Object URI: /home/hosmar/MapTiles/Durham/{z}/{x}/{y}.png

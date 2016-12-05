@@ -1,6 +1,8 @@
 <launch>
 
   <include file="$(find radbotlive)/launch/$(optenv ROBOT jackal).machine"/>
+
+  <include file="$(find radbotlive)/launch/nav_outdoor/gps_integration.launch"/>
  
   <node machine="c2" pkg="move_base" type="move_base" respawn="false" name="move_base" output="screen">
 
