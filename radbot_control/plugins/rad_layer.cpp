@@ -58,7 +58,7 @@ namespace radbot_control
     current_cost_ = 255*counts->counts/max_rad_;
     if(current_cost_ > 254) current_cost_ = 254;
     tf::StampedTransform robot_pose;
-    tf_listener_.waitForTransform(global_frame_, counts->header.frame_id, ros::Time(0), ros::Duration(10.0));
+    tf_listener_.waitForTransform(global_frame_, counts->header.frame_id, ros::Time(0), ros::Duration(3.0));
     tf_listener_.lookupTransform(global_frame_, counts->header.frame_id, ros::Time(0), robot_pose);
     
     tfScalar dist = robot_pose.getOrigin().distance(last_measure_);

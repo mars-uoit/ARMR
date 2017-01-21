@@ -51,19 +51,19 @@
   </node> 
 
   <node pkg="tf" type="static_transform_publisher" name="link1_broadcaster" args="0 0 .05 0 0 0 1 front_laser rad_link 100" />
-  <node pkg="tf" type="static_transform_publisher" name="link2_broadcaster" args="0 0 0 0 0 .707 .707 world map 100" />
-
+  <node pkg="tf" type="static_transform_publisher" name="link2_broadcaster" args="0 0 0 0 0 .707 .707 world $(arg global_frame) 100" />
+<!--
   <node pkg="radbot_src_sim" type="radbot_src_sim_node"
     name="radbot_src_sim_node" output="screen">
 
     <param name="global_frame" value="$(arg global_frame)"/>
 
-    <param name="x1" value="-3.5"/>
-    <param name="y1" value="1"/>
+    <param name="x1" value="-8.163"/>
+    <param name="y1" value="5.485"/>
     <param name="rad_strength1" value="10000"/>
 
-    <param name="x2" value="-2.5"/>
-    <param name="y2" value="3.5"/>
+    <param name="x2" value="-14.163"/>
+    <param name="y2" value="10.485"/>
     <param name="rad_strength2" value="5000"/>
 
     <param name="x3" value="0"/>
@@ -75,7 +75,7 @@
     <param name="rad_strength4" value="0"/>
   </node> 
 
-<!--
+-->
 
     <node machine="c2" pkg="ursa_driver" type="ursa_node" name="ursa_node" output="screen">
 
@@ -92,6 +92,6 @@
       <param name="input_and_polarity" value="input1_negative"/>
       <param name="ramping_time" value="6"/>
   </node> 
--->
+
 </launch>
 

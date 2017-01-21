@@ -10,7 +10,7 @@
     <node machine="c1" pkg="radbot_exploration" type="radbot_exploration_server" name="explore_server" output="screen" >
 
         <param name="goal_spacing" type="double" value="3"/>
-        <param name="row_width" type="double" value="3"/>
+        <param name="row_width" type="double" value="2"/>
         <param name="padding" type="double" value="0.5"/>
         <param name="global_frame" type="string" value="gps"/>
 

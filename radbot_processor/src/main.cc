@@ -21,6 +21,7 @@ using namespace std;
 #include "radbot_processor/psoAction.h"
 #include "radbot_processor/util.h"
 #include "radbot_processor/pso.h"
+#define DEBUG
 
 ros::MultiThreadedSpinner spinner(4);
 
@@ -202,7 +203,7 @@ bool clearSamplesCB(std_srvs::Empty::Request& request,
 
 inline void openFile() {
     try {
-        infile.open("data_4_extra.csv", ifstream::in);
+        infile.open("data_o1.csv", ifstream::in);
     }
     catch (ifstream::failure * e) {
         ROS_ERROR("Exception opening/reading/closing file");

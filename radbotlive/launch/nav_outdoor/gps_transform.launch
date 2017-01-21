@@ -2,14 +2,14 @@
 
     <include file="$(find radbotlive)/launch/$(optenv ROBOT jackal).machine"/>
 
-    <!-- <node machine="c2" pkg="nmea_navsat_driver" type="nmea_serial_driver" name="navsat2">
+    <node machine="c2" pkg="nmea_navsat_driver" type="nmea_serial_driver" name="navsat2">
       <param name="port" value="/dev/ttyACM0"/>
       <param name="baud" value="57600"/>
       <param name="frame_id" type="string" value="navsat_link"/>
       <remap from="fix" to="navsat2/fix"/>
       <remap from="vel" to="navsat2/vel"/>
       <remap from="time_reference" to="navsat2/time_reference"/>
-    </node> -->
+    </node>
 
     <node machine="c1" pkg="robot_localization" type="navsat_transform_node" name="gps_transform2" respawn="true" output="screen">
       <param name="frequency" value="1"/>
