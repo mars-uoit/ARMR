@@ -1,36 +1,39 @@
 <launch>
 
-    <include file="$(find radbotlive)/launch/$(optenv ROBOT jackal).machine"/>
+  <include file="$(find radbotlive)/launch/$(optenv ROBOT jackal).machine"/>
 
-    <node machine="c2" pkg="nmea_navsat_driver" type="nmea_serial_driver" name="navsat2">
-      <param name="port" value="/dev/ttyACM0"/>
-      <param name="baud" value="57600"/>
-      <param name="frame_id" type="string" value="navsat_link"/>
-      <remap from="fix" to="navsat2/fix"/>
-      <remap from="vel" to="navsat2/vel"/>
-      <remap from="time_reference" to="navsat2/time_reference"/>
-    </node>
+  <node machine="c2" pkg="tf" type="static_transform_publisher" name="rtk_link_broadcaster" args="0 0 .05 0 0 0 1 front_laser rtk_link 100" />
 
-    <node machine="c1" pkg="robot_localization" type="navsat_transform_node" name="gps_transform2" respawn="true" output="screen">
-      <param name="frequency" value="1"/>
-      <param name="delay" value="3"/>
-      <param name="magnetic_declination_radians" value="0.190240888"/>
-      <param name="yaw_offset" value="1.57079633"/>
-      <param name="zero_altitude" value="true"/>
-      <param name="publish_filtered_gps" value="true"/>
-      <param name="broadcast_utm_transform" value="false"/>
-      <param name="use_odometry_yaw" value="false"/>
-      <param name="wait_for_datum" value="true"/>
-      <rosparam param="datum">[43.9406655, -078.8942039, 0]</rosparam>
+  <node machine="c2" pkg="nmea_navsat_driver" type="nmea_serial_driver" name="navsat2">
+    <param name="port" value="/dev/ttyACM0"/>
+    <param name="baud" value="57600"/>
+    <param name="frame_id" type="string" value="rtk_link"/>
+    <remap from="fix" to="navsat2/fix"/>
+    <remap from="vel" to="navsat2/vel"/>
+    <remap from="time_reference" to="navsat2/time_reference"/>
+  </node>
 
-      <!-- Placeholders for input remapping. Set your topic names as the "to" values.-->
-      <remap from="/imu/data" to="/imu/data" />
-      <remap from="/odometry/filtered" to="/odometry/filtered/global" /> 
-      <remap from="/gps/fix" to="/navsat2/fix" />
+  <node machine="c1" pkg="robot_localization" type="navsat_transform_node" name="gps_transform2" respawn="true" output="screen">
+    <param name="frequency" value="1"/>
+    <param name="delay" value="3"/>
+    <!-- magnetic declination is not working properly -->
+    <!-- <param name="magnetic_declination_radians" value="0.190240888"/> -->
+    <param name="yaw_offset" value="1.57079633"/>
+    <param name="zero_altitude" value="true"/>
+    <param name="publish_filtered_gps" value="true"/>
+    <param name="broadcast_utm_transform" value="false"/>
+    <param name="use_odometry_yaw" value="false"/>
+    <param name="wait_for_datum" value="true"/>
+    <rosparam param="datum">[43.9406655, -078.8942039, 0]</rosparam>
 
-      <!-- Placeholders for output remapping.
-      <remap from="/odometry/gps to="" />
-      -->
-    </node>
+    <!-- Placeholders for input remapping. Set your topic names as the "to" values.-->
+    <remap from="/imu/data" to="/imu/data" />
+    <remap from="/odometry/filtered" to="/odometry/filtered/global" /> 
+    <remap from="/gps/fix" to="/navsat2/fix" />
+
+    <!-- Placeholders for output remapping.
+    <remap from="/odometry/gps to="" />
+    -->
+  </node>
 
 </launch>

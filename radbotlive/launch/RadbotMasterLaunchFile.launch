@@ -50,11 +50,13 @@
     <param name="topic" type="string" value="/ursa_node/counts"/>
   </node> 
 
-  <node pkg="tf" type="static_transform_publisher" name="link1_broadcaster" args="0 0 .05 0 0 0 1 front_laser rad_link 100" />
-  <node pkg="tf" type="static_transform_publisher" name="link2_broadcaster" args="0 0 0 0 0 .707 .707 world $(arg global_frame) 100" />
-<!--
-  <node pkg="radbot_src_sim" type="radbot_src_sim_node"
-    name="radbot_src_sim_node" output="screen">
+
+
+  <node machine="c2" pkg="tf" type="static_transform_publisher" name="link1_broadcaster" args="0 0 0 0 0 .707 .707 world $(arg global_frame) 100" />
+  <node machine="c2" pkg="tf" type="static_transform_publisher" name="link2_broadcaster" args="0 0 .28 0 0 0 1 rear_mount rad_link 100" />
+
+
+  <node pkg="radbot_src_sim" type="radbot_src_sim_node" name="radbot_src_sim_node" output="screen" if="$(arg sim)">
 
     <param name="global_frame" value="$(arg global_frame)"/>
 
@@ -75,23 +77,21 @@
     <param name="rad_strength4" value="0"/>
   </node> 
 
--->
+  <node machine="c2" pkg="ursa_driver" type="ursa_node" name="ursa_node" output="screen" unless="$(arg sim)">
 
-    <node machine="c2" pkg="ursa_driver" type="ursa_node" name="ursa_node" output="screen">
+    <param name="port" value="/dev/ttyUSB0"/>
+    <param name="use_GM_mode" value="true"/>
+    <param name="imeadiate_mode" value="true"/>
 
-      <param name="port" value="/dev/ttyUSB0"/>
-      <param name="use_GM_mode" value="true"/>
-      <param name="imeadiate_mode" value="true"/>
+    <param name="load_previous_settings" value="false"/>
 
-      <param name="load_previous_settings" value="false"/>
-
-      <param name="high_voltage" value="900"/>
-      <param name="gain" value="70"/>
-      <param name="threshold" value="100"/>
-      <param name="shaping_time" value="1"/>
-      <param name="input_and_polarity" value="input1_negative"/>
-      <param name="ramping_time" value="6"/>
-  </node> 
+    <param name="high_voltage" value="900"/>
+    <param name="gain" value="70"/>
+    <param name="threshold" value="100"/>
+    <param name="shaping_time" value="1"/>
+    <param name="input_and_polarity" value="input1_negative"/>
+    <param name="ramping_time" value="6"/>
+</node> 
 
 </launch>
 

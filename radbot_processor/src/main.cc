@@ -21,7 +21,7 @@ using namespace std;
 #include "radbot_processor/psoAction.h"
 #include "radbot_processor/util.h"
 #include "radbot_processor/pso.h"
-#define DEBUG
+//#define DEBUG
 
 ros::MultiThreadedSpinner spinner(4);
 
@@ -103,14 +103,14 @@ int main(int argc, char **argv) {
         std::copy(result.begin(), result.end(), out_it);
         cout << endl;
     }*/
-    for(int i = 0; i<10; i++){
+    //for(int i = 0; i<10; i++){
         t2 = clock();
         result = my_pso2.run();
         std::copy(result.begin(), result.end(), out_it);
         cout << endl;
         t1 = clock() - t2;
         cout << (float) t1 / CLOCKS_PER_SEC << endl;
-    }
+    //}
 
     t1 = clock() - t0;
     cerr << (float) t1 / CLOCKS_PER_SEC << endl;
@@ -203,7 +203,7 @@ bool clearSamplesCB(std_srvs::Empty::Request& request,
 
 inline void openFile() {
     try {
-        infile.open("data_o1.csv", ifstream::in);
+        infile.open("data_4.csv", ifstream::in);
     }
     catch (ifstream::failure * e) {
         ROS_ERROR("Exception opening/reading/closing file");
