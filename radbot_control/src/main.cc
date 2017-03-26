@@ -104,7 +104,7 @@ int main(int argc, char** argv) {
     move_client->waitForServer();
 
     //sample positions
-    sample_marker.header.frame_id = "gps";
+    sample_marker.header.frame_id = frame;
 
     sample_marker.ns = "basic_shapes";
     sample_marker.id = 1;
